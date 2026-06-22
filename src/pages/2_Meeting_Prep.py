@@ -21,13 +21,6 @@ if "ANTHROPIC_API_KEY" in st.secrets:
 
 from packet_generator import get_upcoming_meetings, run_packet
 
-st.set_page_config(
-    page_title="Meeting Prep — Strauss Procurement",
-    page_icon="⚡",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
 # ── Session state ─────────────────────────────────────────────────────────────
 
 if "packets" not in st.session_state:

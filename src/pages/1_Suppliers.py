@@ -25,13 +25,6 @@ from supplier_analytics import (
 )
 from packet_generator import get_upcoming_meetings
 
-st.set_page_config(
-    page_title="Suppliers — Strauss Procurement",
-    page_icon="🏭",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
 # ── Cache the full summary load (reads 8 email files + 10 contract files) ────
 
 @st.cache_data(ttl=300)
