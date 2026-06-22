@@ -1,0 +1,106 @@
+[
+  {
+    "date": "2026-01-09",
+    "from": "david.cohen@strauss-group.com",
+    "to": "pieter.vandenberg@lowlandsdairy.nl",
+    "cc": [],
+    "subject": "Contract renewal — Lowlands Dairy",
+    "body": "Hi Pieter,\n\nHappy new year. As you know, our contract with Lowlands expired December 31. We're operating on a month-to-month basis for now, but I'd like to get the renewal discussion started properly. Can we schedule a call this month?\n\nDavid"
+  },
+  {
+    "date": "2026-01-13",
+    "from": "pieter.vandenberg@lowlandsdairy.nl",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "RE: Contract renewal — Lowlands Dairy",
+    "body": "David,\n\nGood to hear from you. Yes, renewal is on our radar too. Before we go to formal terms, I need to flag that our production planning team has been reviewing our outbound commitments across all customers and we see some changes needed on the volume side. Happy to discuss on a call — how does January 22 look?\n\nPieter"
+  },
+  {
+    "date": "2026-01-22",
+    "from": "pieter.vandenberg@lowlandsdairy.nl",
+    "to": "david.cohen@strauss-group.com",
+    "cc": ["anja.dekker@lowlandsdairy.nl"],
+    "subject": "Renewal framework — Lowlands Dairy proposal",
+    "body": "David,\n\nGood call earlier. As discussed, I'm sending over our proposed framework for the 2026 contract:\n\n- Term: 18 months\n- Volume: minimum 25 MT/quarter, maximum 40 MT/quarter\n- Price: €3,350/ton\n- Payment: Net 30\n\nThe key change from the old contract is the minimum commitment — we've moved it to 25 MT from 20 MT. This reflects our new production scheduling requirements. We can't hold capacity for a customer at 20 MT minimum anymore, it simply doesn't work for our co-op members.\n\nI've cc'd Anja Dekker, our volume planning lead, who can answer any questions on the supply side.\n\nLook forward to your feedback.\nPieter"
+  },
+  {
+    "date": "2026-01-28",
+    "from": "david.cohen@strauss-group.com",
+    "to": "pieter.vandenberg@lowlandsdairy.nl",
+    "cc": [],
+    "subject": "RE: Renewal framework — Lowlands Dairy proposal",
+    "body": "Pieter,\n\nThanks for the framework. A few reactions:\n\nOn price — €3,350 is a significant step up from the old contract. We'd want to discuss this more. Can you share what's driving that number?\n\nOn the minimum volume increase — 25 MT vs the previous 20 MT is something I need to check internally. Our Q4 2025 actual offtake was around 19 MT, so committing to a 25 MT floor is not straightforward for us.\n\nI'll come back to you with a counter by end of next week.\n\nDavid"
+  },
+  {
+    "date": "2026-02-03",
+    "from": "anja.dekker@lowlandsdairy.nl",
+    "to": "david.cohen@strauss-group.com",
+    "cc": ["pieter.vandenberg@lowlandsdairy.nl"],
+    "subject": "Q1 delivery — January/February",
+    "body": "David,\n\nThis is Anja from the Lowlands planning team. Just flagging that while renewal is being discussed, we are continuing to process your standing monthly orders under the old terms. The January shipment of 7 MT left on January 31, ETA at your site February 6.\n\nFor February we have you down for another 7 MT around February 20 — please confirm this is still needed.\n\nAnja"
+  },
+  {
+    "date": "2026-02-04",
+    "from": "david.cohen@strauss-group.com",
+    "to": "anja.dekker@lowlandsdairy.nl",
+    "cc": [],
+    "subject": "RE: Q1 delivery — January/February",
+    "body": "Confirmed, February 7 MT on the 20th is fine. Thanks Anja.\n\nDavid"
+  },
+  {
+    "date": "2026-02-10",
+    "from": "david.cohen@strauss-group.com",
+    "to": "pieter.vandenberg@lowlandsdairy.nl",
+    "cc": [],
+    "subject": "Counter-proposal — renewal terms",
+    "body": "Pieter,\n\nHere is our counter on the renewal framework:\n\n- Term: 18 months (agreed)\n- Volume: minimum 20 MT/quarter (we want to hold the original minimum), maximum 40 MT/quarter (agreed)\n- Price: €3,250/ton (midpoint between your proposal and the old contract price)\n- Payment: Net 30 (agreed)\n\nThe 20 MT minimum is important for us — our demand profile can be variable and we need the flexibility. We're happy to commit to best-efforts to hit 25+ MT when demand allows, but we can't contractually floor it there.\n\nLet me know your thoughts.\n\nDavid"
+  },
+  {
+    "date": "2026-02-17",
+    "from": "pieter.vandenberg@lowlandsdairy.nl",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "RE: Counter-proposal — renewal terms",
+    "body": "David,\n\nThank you for the counter. On price — we could consider €3,280 but not lower, our input costs simply don't allow it.\n\nOn volume minimum — I hear you on the flexibility argument but 20 MT is really not workable for us. The co-op voted on this. We would be willing to consider 23 MT as a compromise minimum.\n\nStill some gap to close. Can we get on a call later this week?\n\nPieter"
+  },
+  {
+    "date": "2026-03-05",
+    "from": "david.cohen@strauss-group.com",
+    "to": "pieter.vandenberg@lowlandsdairy.nl",
+    "cc": [],
+    "subject": "Following up — renewal status",
+    "body": "Pieter,\n\nWe've been going back and forth since January and are still not aligned on the two key items — price and minimum volume. I want to make sure we don't drift further on an informal basis without a signed contract.\n\nWhere do things stand from your side? Are you still at 23 MT minimum / €3,280?\n\nDavid"
+  },
+  {
+    "date": "2026-03-10",
+    "from": "pieter.vandenberg@lowlandsdairy.nl",
+    "to": "david.cohen@strauss-group.com",
+    "cc": ["anja.dekker@lowlandsdairy.nl"],
+    "subject": "RE: Following up — renewal status",
+    "body": "David,\n\nYes, we are still at those positions. I've also had our legal team put together a draft contract document. Sending separately — please review and let us know your comments. We'd like to have something signed before end of April if possible.\n\nPieter"
+  },
+  {
+    "date": "2026-04-14",
+    "from": "david.cohen@strauss-group.com",
+    "to": "pieter.vandenberg@lowlandsdairy.nl",
+    "cc": [],
+    "subject": "Draft contract review — open items",
+    "body": "Pieter,\n\nWe've reviewed the draft. Our legal team has flagged a few things. The main issues remain the same: minimum volume (we reviewed internally and 20 MT is our limit — we can't move on this) and the price (we can go to €3,260 but not €3,280).\n\nI know we've been at an impasse on these for a while. Is there any flexibility on your side, or do you need to go back to the co-op?\n\nDavid"
+  },
+  {
+    "date": "2026-04-22",
+    "from": "anja.dekker@lowlandsdairy.nl",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Q2 delivery schedule",
+    "body": "David,\n\nJust sending over the Q2 delivery schedule as we are continuing on the informal basis:\n- April 28: 7 MT\n- May 19: 7 MT\n- June 10: 6 MT\n\nTotal Q2: 20 MT. Please confirm if these dates work.\n\nNote from Pieter: the renewal discussion is still ongoing, he will follow up separately.\n\nAnja"
+  },
+  {
+    "date": "2026-05-28",
+    "from": "pieter.vandenberg@lowlandsdairy.nl",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Renewal — still open",
+    "body": "David,\n\nI owe you an update. I brought the 20 MT minimum back to our board and they will not approve it. The co-op's position is firm at 23 MT. On price we could meet at €3,270.\n\nI know this is frustrating. We have been very patient operating without a signed contract but this can't continue indefinitely. What is Strauss's final position?\n\nPieter"
+  }
+]

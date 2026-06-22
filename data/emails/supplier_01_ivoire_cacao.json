@@ -1,0 +1,106 @@
+[
+  {
+    "date": "2026-01-14",
+    "from": "david.cohen@strauss-group.com",
+    "to": "amara.koffi@ivoirecacao.com",
+    "cc": [],
+    "subject": "Q1 Cocoa Pricing + Delivery Schedule",
+    "body": "Hi Amara,\n\nHope you're well. Can you send over your Q1 pricing for the standard grade cocoa, and confirm the delivery window we discussed for the February shipment (40 tons)?\n\nThanks,\nDavid"
+  },
+  {
+    "date": "2026-01-19",
+    "from": "amara.koffi@ivoirecacao.com",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "RE: Q1 Cocoa Pricing + Delivery Schedule",
+    "body": "Hello David, sorry for delay, was traveling.\n\nQ1 price is $2,850/ton for standard grade, this is good price for current market. For delivery schedule please check with Jean-Baptiste in operations, he handle the logistics side, I only do pricing and contract.\n\nLet me know if you want to proceed and I send formal quote letter.\n\nBest,\nAmara"
+  },
+  {
+    "date": "2026-01-22",
+    "from": "david.cohen@strauss-group.com",
+    "to": "jb.ouattara@ivoirecacao.com",
+    "cc": ["amara.koffi@ivoirecacao.com"],
+    "subject": "Delivery confirmation - Feb shipment (40t)",
+    "body": "Hi Jean-Baptiste,\n\nAmara mentioned you handle logistics. Can you confirm the February delivery window for the 40 ton order? We need it on site before Feb 20 for production planning.\n\nThanks,\nDavid"
+  },
+  {
+    "date": "2026-01-29",
+    "from": "jb.ouattara@ivoirecacao.com",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Re: Delivery confirmation - Feb shipment (40t)",
+    "body": "David\n\nport congestion abidjan this month, vessel delay. realistic date now is march, maybe march 5-10. will update closer. sorry for inconvenience\n\njb"
+  },
+  {
+    "date": "2026-03-03",
+    "from": "david.cohen@strauss-group.com",
+    "to": "jb.ouattara@ivoirecacao.com",
+    "cc": ["amara.koffi@ivoirecacao.com"],
+    "subject": "Following up - shipment status",
+    "body": "Hi JB,\n\nWe're now past the window you gave in January and I haven't heard an update. This is affecting our production schedule. Can you give me a firm date this week?\n\nDavid"
+  },
+  {
+    "date": "2026-03-10",
+    "from": "amara.koffi@ivoirecacao.com",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Updated pricing for upcoming order",
+    "body": "Hi David, hope all is good.\n\nQuick note - cocoa market has moved a lot since January, for any new order after this batch the price will be $3,050/ton, this reflect current ICCO benchmark plus our margin. Let me know if you want to lock current order at old price before it ships.\n\nAmara"
+  },
+  {
+    "date": "2026-03-11",
+    "from": "david.cohen@strauss-group.com",
+    "to": "amara.koffi@ivoirecacao.com",
+    "cc": ["jb.ouattara@ivoirecacao.com"],
+    "subject": "Re: Updated pricing for upcoming order",
+    "body": "Amara, the current order hasn't even shipped yet, JB said early March and we're still waiting. Can we get clarity on both, when does THIS order actually arrive, and is the new pricing only for future orders or does it touch what's already in transit?"
+  },
+  {
+    "date": "2026-04-02",
+    "from": "jb.ouattara@ivoirecacao.com",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "shipment arrived",
+    "body": "hi david, container left port last week shd reach you mid april. note final loaded qty was 38.5t not 40t, two pallets failed quality check at our end before loading. will credit difference on next invoice.\n\njb"
+  },
+  {
+    "date": "2026-04-16",
+    "from": "david.cohen@strauss-group.com",
+    "to": "jb.ouattara@ivoirecacao.com",
+    "cc": [],
+    "subject": "Re: shipment arrived — delivery confirmed",
+    "body": "JB,\n\nConfirming the 38.5t arrived today and passed incoming inspection. Quality is fine.\n\nOn the short shipment — you mentioned a credit on the next invoice for the 1.5t shortfall. Can you confirm the credit amount? At the Q1 contract price of $2,850/ton, that's $4,275. Please make sure this appears on the next invoice.\n\nAlso — Amara mentioned a new price of $3,050/ton for Q2. Is this your understanding too, or just on the sales side? We need to sort out Q2 planning.\n\nDavid"
+  },
+  {
+    "date": "2026-04-22",
+    "from": "amara.koffi@ivoirecacao.com",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Q2 order + credit note",
+    "body": "Hi David,\n\nGlad shipment arrived ok. For the credit, Jean-Baptiste will raise it on the Q2 invoice, $4,275 as you say.\n\nFor Q2 — yes, new price is $3,050/ton. This is not negotiable, market is where it is. When do you want to place Q2 order? We need lead time of at least 6 weeks for next batch.\n\nAmara"
+  },
+  {
+    "date": "2026-05-06",
+    "from": "david.cohen@strauss-group.com",
+    "to": "amara.koffi@ivoirecacao.com",
+    "cc": [],
+    "subject": "RE: Q2 order — pricing question",
+    "body": "Amara,\n\nI need to flag something before we confirm Q2. Our contract (signed June 2025) sets a base price of $2,650/ton with a quarterly review mechanism — price adjustments require written confirmation from both sides. Neither the January quote ($2,850) nor the current quote ($3,050) has gone through that process.\n\nI'm not saying we won't pay a fair market price, but we need to follow the contract process. Can you or your commercial team send a formal written price review request with the ICCO benchmark reference, so we can process this properly on our end?\n\nDavid"
+  },
+  {
+    "date": "2026-05-14",
+    "from": "amara.koffi@ivoirecacao.com",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "RE: Q2 order",
+    "body": "David,\n\nSorry for slow reply, I was at the Salon du Cacao in Paris last week.\n\nI understand what you say about the contract process. Honestly I do not have a copy of the contract here, Jean-Baptiste handles the administration side. I will ask him to check and send you something formal. But we cannot wait too long, the Q2 harvest window is short and other buyers are asking.\n\nAmara"
+  },
+  {
+    "date": "2026-06-01",
+    "from": "david.cohen@strauss-group.com",
+    "to": "amara.koffi@ivoirecacao.com",
+    "cc": ["jb.ouattara@ivoirecacao.com"],
+    "subject": "Q2 — still waiting on formal price review",
+    "body": "Amara, JB,\n\nIt's been three weeks since I asked for a formal price review request and I haven't received anything. We want to place the Q2 order — 35-40 tons — but I cannot authorize payment above the contract base price without a written amendment.\n\nIf I don't hear back with the formal documentation by June 10, we'll need to either place the order at contract price or pause until we can align. Please advise.\n\nDavid"
+  }
+]

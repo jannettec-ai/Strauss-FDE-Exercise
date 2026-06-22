@@ -1,0 +1,122 @@
+[
+  {
+    "date": "2026-01-07",
+    "from": "fernando.almeida@canadoce.com.br",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Greetings and Q1 Order Confirmation",
+    "body": "Dear David,\n\nI trust this message finds you well and that you had a restful holiday period. On behalf of Cana Doce Açúcar, I wish you and your team a prosperous 2026.\n\nI am writing to confirm our readiness to fulfill the Q1 order per our current contract terms. Please send the official purchase order at your earliest convenience so that we may initiate the production scheduling process.\n\nKind regards,\nFernando Almeida\nSales Director, Cana Doce Açúcar"
+  },
+  {
+    "date": "2026-01-10",
+    "from": "david.cohen@strauss-group.com",
+    "to": "fernando.almeida@canadoce.com.br",
+    "cc": [],
+    "subject": "RE: Greetings and Q1 Order Confirmation",
+    "body": "Fernando,\n\nThank you and likewise — hope 2026 is a good year for both companies.\n\nQ1 PO is attached: 60 tons ICUMSA 45, per contract pricing of $495/ton, delivery by February 28. Please confirm.\n\nDavid"
+  },
+  {
+    "date": "2026-01-13",
+    "from": "fernando.almeida@canadoce.com.br",
+    "to": "david.cohen@strauss-group.com",
+    "cc": ["isabela.souza@canadoce.com.br"],
+    "subject": "RE: Greetings and Q1 Order Confirmation — PO Acknowledged",
+    "body": "Dear David,\n\nThank you for the purchase order. I can confirm receipt and acceptance of PO-2026-0041 for 60 metric tons of ICUMSA 45 refined white sugar at USD 495/MT, with delivery requested by February 28, 2026.\n\nI have copied Isabela Souza from our logistics team, who will coordinate the export documentation and shipping schedule directly with you.\n\nBest regards,\nFernando Almeida"
+  },
+  {
+    "date": "2026-01-20",
+    "from": "isabela.souza@canadoce.com.br",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Shipment logistics — PO-2026-0041",
+    "body": "Dear Mr. Cohen,\n\nGood afternoon. I am Isabela Souza, responsible for export logistics at Cana Doce Açúcar.\n\nThe 60-ton shipment is scheduled to depart Santos port on February 2, 2026 aboard the MV Belém Star (vessel ref: IMO 9412356). Estimated arrival at Ashdod port is February 22, well within your requested delivery window.\n\nPlease find the draft bill of lading attached for your review. Kindly advise if any corrections are required.\n\nWith kind regards,\nIsabela Souza\nLogistics Coordinator, Cana Doce Açúcar"
+  },
+  {
+    "date": "2026-02-03",
+    "from": "isabela.souza@canadoce.com.br",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Vessel departed Santos — tracking information",
+    "body": "Dear Mr. Cohen,\n\nPlease be advised that the MV Belém Star departed Santos port on February 2, 2026 as scheduled. The shipment tracking reference is BL-CNS-20260202-447.\n\nCurrent ETA at Ashdod remains February 22, 2026. I will notify you of any changes.\n\nWith kind regards,\nIsabela Souza"
+  },
+  {
+    "date": "2026-02-24",
+    "from": "david.cohen@strauss-group.com",
+    "to": "isabela.souza@canadoce.com.br",
+    "cc": [],
+    "subject": "RE: Q1 shipment received",
+    "body": "Isabela,\n\nConfirming receipt of the Q1 shipment — 60 tons arrived in good order, quality inspection passed, ICUMSA 45 confirmed. Invoice processing underway.\n\nThank you for the smooth coordination.\n\nDavid"
+  },
+  {
+    "date": "2026-03-15",
+    "from": "fernando.almeida@canadoce.com.br",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Q2 Order Planning and Contract Discussion",
+    "body": "Dear David,\n\nI hope you are well. I am reaching out proactively to begin the Q2 planning discussion. Based on our current contract, I anticipate a similar order volume of 55–65 tons for Q2. Please confirm your intended volume when convenient so we can begin scheduling Santos port capacity.\n\nAdditionally, I wish to raise a commercial topic: as we approach our October 15th renewal, our pricing team has been reviewing the contract terms. We believe a modest adjustment for the renewal period will be warranted given input cost trends. I would welcome the opportunity to discuss this on a call at your convenience.\n\nBest regards,\nFernando Almeida"
+  },
+  {
+    "date": "2026-03-19",
+    "from": "david.cohen@strauss-group.com",
+    "to": "fernando.almeida@canadoce.com.br",
+    "cc": [],
+    "subject": "RE: Q2 Order Planning and Contract Discussion",
+    "body": "Fernando,\n\nThanks for the proactive reach-out. For Q2 we're planning 60 tons again — same as Q1. Isabela can start the scheduling.\n\nOn the renewal discussion — happy to have that call closer to the date. Let's revisit in July or August.\n\nDavid"
+  },
+  {
+    "date": "2026-03-22",
+    "from": "isabela.souza@canadoce.com.br",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Q2 shipment schedule",
+    "body": "Dear Mr. Cohen,\n\nThank you for confirming the Q2 volume of 60 metric tons. Proposed schedule:\n\n- Departure from Santos: May 5, 2026\n- Estimated arrival at Ashdod: May 26, 2026\n\nPlease send the Q2 purchase order at your earliest convenience so we may finalize loading arrangements.\n\nWith kind regards,\nIsabela Souza"
+  },
+  {
+    "date": "2026-04-01",
+    "from": "david.cohen@strauss-group.com",
+    "to": "isabela.souza@canadoce.com.br",
+    "cc": [],
+    "subject": "Q2 PO — Cana Doce",
+    "body": "Isabela,\n\nQ2 PO attached: 60 tons ICUMSA 45 at $495/ton, delivery by May 30. Please confirm.\n\nDavid"
+  },
+  {
+    "date": "2026-04-03",
+    "from": "isabela.souza@canadoce.com.br",
+    "to": "david.cohen@strauss-group.com",
+    "cc": ["fernando.almeida@canadoce.com.br"],
+    "subject": "RE: Q2 PO — confirmed",
+    "body": "Dear Mr. Cohen,\n\nPO-2026-0088 confirmed and accepted. We will proceed with loading arrangements for the May 5 departure. Documentation will follow in due course.\n\nWith kind regards,\nIsabela Souza"
+  },
+  {
+    "date": "2026-05-06",
+    "from": "isabela.souza@canadoce.com.br",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Q2 vessel departed Santos",
+    "body": "Dear Mr. Cohen,\n\nPlease be advised that the Q2 shipment of 60 metric tons departed Santos port on May 5, 2026 as scheduled, aboard the MV Primavera Sul (vessel ref: IMO 9387211). Tracking reference: BL-CNS-20260505-619.\n\nEstimated arrival at Ashdod port: May 26, 2026. I will send the original bill of lading by courier and a scanned copy by email today.\n\nWith kind regards,\nIsabela Souza"
+  },
+  {
+    "date": "2026-05-28",
+    "from": "david.cohen@strauss-group.com",
+    "to": "isabela.souza@canadoce.com.br",
+    "cc": [],
+    "subject": "Q2 shipment received",
+    "body": "Isabela,\n\nQ2 arrived May 27 — 60 tons, quality confirmed ICUMSA 45. All good. Invoice will be processed this week.\n\nDavid"
+  },
+  {
+    "date": "2026-06-10",
+    "from": "fernando.almeida@canadoce.com.br",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Renewal preparation — advance notice",
+    "body": "Dear David,\n\nI trust you are well. I am writing ahead of our October 15th renewal date to formally initiate the commercial discussion we touched on in March.\n\nOur pricing team has completed its review. For the renewal period, we are proposing an adjustment to $510/MT, reflecting the ICE No.11 trend over the past 12 months and our increased logistics costs out of Santos. We believe this is a fair and well-supported position.\n\nI would suggest we schedule a call in late June or early July to work through this together. Would week of June 22 or June 29 suit you?\n\nBest regards,\nFernando Almeida"
+  },
+  {
+    "date": "2026-06-15",
+    "from": "david.cohen@strauss-group.com",
+    "to": "fernando.almeida@canadoce.com.br",
+    "cc": [],
+    "subject": "RE: Renewal preparation",
+    "body": "Fernando,\n\nThanks for the advance notice — appreciated. Week of June 29 works for a call, let's say June 30 at 14:00 Israel time / 09:00 São Paulo.\n\nOn the $510/MT proposal — I'll review with my team before the call. I'd also like to align on the renewal date itself before we get into pricing. Our records show the current contract runs to September 30, 2027 (24-month term from October 2025). Can you confirm what date your team is working from?\n\nDavid"
+  }
+]

@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Secrets — never commit
+.env
+.streamlit/secrets.toml
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Editor
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Microsoft Office temp/lock files
+~$*
+
+# Temp files from docx extraction
+/tmp/docx_extract/

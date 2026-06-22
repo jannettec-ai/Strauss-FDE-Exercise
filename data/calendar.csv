@@ -1,0 +1,15 @@
+meeting_id,date,supplier,category,geography,notes
+1,2026-06-25,Ivoire Cacao Export,Cocoa,Côte d'Ivoire,Quarterly pricing review
+2,2026-06-29,Lowlands Dairy Co-op,Dairy,Netherlands,Volume renegotiation - bring current vs draft contract terms
+3,2026-07-02,Galil Dairy Suppliers,Dairy,Israel,Routine check-in (supplier requested, no agenda given)
+4,2026-07-08,Sierra Verde Coffee Cooperative,Coffee,Colombia,Annual relationship visit - video call
+5,2026-07-10,Golden Coast Cocoa Traders,Cocoa,Ghana,Follow-up on unresolved Q1 quality complaint
+6,2026-07-15,Cana Doce Açúcar,Sugar,Brazil,Renewal discussion - confirm renewal date discrepancy before meeting
+7,2026-07-21,EuroPack Solutions,Packaging,Poland,Spec change review
+8,2026-07-24,Siam Sugar Partners,Sugar,Thailand,Pricing clarification needed (per-ton vs per-unit ambiguity unresolved)
+9,2026-07-30,Ivoire Cacao Export,Cocoa,Côte d'Ivoire,Mid-quarter touchpoint - rescheduled from July 27
+10,2026-08-03,Galil Dairy Suppliers,Dairy,Israel,Price discussion - check contract Section 4.2 before meeting
+11,2026-08-07,Lowlands Dairy Co-op,Dairy,Netherlands,Contract sign-off target date (draft terms still unresolved)
+12,2026-08-12,Golden Coast Cocoa Traders,Cocoa,Ghana,Quarterly review
+13,2026-08-15,Cana Doce Açúcar,Sugar,Brazil,Standard quarterly check-in
+14,2026-08-19,Siam Sugar Partners,Sugar,Thailand,Quarterly pricing review
