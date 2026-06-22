@@ -206,7 +206,18 @@ Return a single JSON object with exactly these fields. No markdown fences.
 
   "commodity_benchmark": "<one sentence on where the commodity price sits relative to the contract price, or 'No benchmark in scope for this category' if coffee/packaging>",
 
-  "heads_up": "<1-2 sentences: the single most important thing to know before the next meeting with this supplier. Be specific, name the clause or email if relevant.>"
+  "heads_up": "<1-2 sentences: the single most important thing to know before the next meeting with this supplier. Be specific, name the clause or email if relevant.>",
+
+  "field_sources": {{
+    "email_summary": "<e.g. 'Based on 13 emails, 2026-01-07 to 2026-05-08'>",
+    "latest_price_quoted": "<e.g. 'Email 2026-03-03 from Yael Shapira, subject: Q2 Pricing Proposal'>",
+    "contract_base_price": "<e.g. 'Contract STR-DAIRY-2025-014, Section 4.2 Pricing'>",
+    "renewal_date": "<e.g. 'Contract STR-DAIRY-2025-014, Section 7.1 Renewal Terms'>",
+    "payment_terms": "<e.g. 'Contract STR-DAIRY-2025-014, Section 5 Payment'>",
+    "volume_commitment": "<e.g. 'Contract STR-DAIRY-2025-014, Section 3.2 Volume'>",
+    "key_penalty": "<e.g. 'Contract STR-DAIRY-2025-014, Section 9.3 Penalties'>",
+    "heads_up": "<e.g. 'Synthesized from email 2026-03-03 (price proposal) and contract Section 4.2 (amendment requirement)'>"
+  }}
 }}
 
 Rules:

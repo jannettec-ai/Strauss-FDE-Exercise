@@ -10,8 +10,10 @@ Run:
     streamlit run src/app.py
 """
 
+import csv
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -25,6 +27,28 @@ if "ANTHROPIC_API_KEY" in st.secrets:
 
 from datetime import date
 from packet_generator import get_upcoming_meetings, run_packet
+
+LOG_PATH = Path(__file__).parent.parent / "data" / "correction_log.csv"
+LOG_COLUMNS = ["timestamp", "meeting_id", "supplier_name", "field_key", "field_label", "flagged", "packet_generated_at"]
+
+
+def save_correction_log(meeting_id: int, supplier_name: str, corrections: dict, generated_at: str) -> None:
+    write_header = not LOG_PATH.exists()
+    with open(LOG_PATH, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=LOG_COLUMNS)
+        if write_header:
+            writer.writeheader()
+        ts = datetime.utcnow().isoformat() + "Z"
+        for fk, label in TRACKABLE_FIELDS:
+            writer.writerow({
+                "timestamp": ts,
+                "meeting_id": meeting_id,
+                "supplier_name": supplier_name,
+                "field_key": fk,
+                "field_label": label,
+                "flagged": corrections.get(fk, False),
+                "packet_generated_at": generated_at,
+            })
 
 # ── Page config ───────────────────────────────────────────────────────────────
 
@@ -211,6 +235,11 @@ if has_red:
 else:
     st.warning(f"⚠️ **Heads-up:** {packet['heads_up']}")
 
+_fs_global = packet.get("field_sources", {})
+if _fs_global.get("heads_up"):
+    with st.expander("📎 Source", expanded=False):
+        st.caption(_fs_global["heads_up"])
+
 # ── KPI row ───────────────────────────────────────────────────────────────────
 
 k1, k2, k3, k4 = st.columns(4)
@@ -289,6 +318,10 @@ with left:
         if packet["avg_response_days"] is not None
         else f"Based on {packet['email_count']} emails"
     )
+    fs = packet.get("field_sources", {})
+    if fs.get("email_summary"):
+        with st.expander("📎 Source", expanded=False):
+            st.caption(fs["email_summary"])
 
     st.divider()
 
@@ -330,6 +363,20 @@ with left:
     for field_label, field_value in contract_rows:
         st.markdown(f"**{field_label}:** {field_value}")
 
+    contract_source_fields = [
+        ("renewal_date", "Renewal date"),
+        ("contract_base_price", "Base price"),
+        ("payment_terms", "Payment terms"),
+        ("volume_commitment", "Volume"),
+        ("key_penalty", "Penalty clause"),
+    ]
+    source_lines = [
+        f"- **{lbl}:** {fs[fk]}" for fk, lbl in contract_source_fields if fs.get(fk)
+    ]
+    if source_lines:
+        with st.expander("📎 Source", expanded=False):
+            st.markdown("\n".join(source_lines))
+
 with right:
 
     # Pricing
@@ -343,6 +390,9 @@ with right:
             f"**Latest quote:** {lp['display']}  \n"
             f"_{lp.get('quoted_by', 'Unknown')} · {lp.get('date', '—')}_"
         )
+        if fs.get("latest_price_quoted"):
+            with st.expander("📎 Source", expanded=False):
+                st.caption(fs["latest_price_quoted"])
     else:
         st.markdown("**Latest quote:** No price quoted in email thread")
 
@@ -417,3 +467,12 @@ with st.expander("🔍 Field Corrections (internal quality tracking)", expanded=
         f"{rate}%",
         help=f"{n_flagged} of {total} fields flagged as incorrect",
     )
+
+    if st.button("💾 Save corrections to log", key=f"save_log_{mid}"):
+        save_correction_log(
+            mid,
+            packet["supplier_name"],
+            corr,
+            packet["generated_at"],
+        )
+        st.success(f"Saved to correction_log.csv — {n_flagged} field(s) flagged.")
