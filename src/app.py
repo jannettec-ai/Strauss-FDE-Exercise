@@ -62,11 +62,6 @@ with st.sidebar:
     st.title("📋 Strauss Procurement")
     st.caption("Negotiation Prep")
     st.divider()
-    st.markdown("**Navigate**")
-    st.page_link("app.py",                   label="🏠 Home")
-    st.page_link("pages/1_Suppliers.py",      label="🏭 Suppliers")
-    st.page_link("pages/2_Meeting_Prep.py",   label="⚡ Meeting Prep")
-    st.divider()
     st.caption(f"Today: {date.today().isoformat()}")
     st.caption(f"{len(SUPPLIERS)} active suppliers")
 
@@ -135,8 +130,7 @@ with left:
             st.caption(f"…and {len(meetings) - 8} more meetings")
 
         st.markdown("")
-        if st.button("⚡ Go to Meeting Prep", type="primary"):
-            st.switch_page("pages/2_Meeting_Prep.py")
+        st.caption("→ Use **Meeting Prep** in the sidebar to generate a packet")
 
 with right:
 
@@ -162,8 +156,7 @@ with right:
 
         st.divider()
 
-    if st.button("🏭 View all suppliers", use_container_width=True):
-        st.switch_page("pages/1_Suppliers.py")
+    st.caption("→ Use **Suppliers** in the sidebar to view all profiles")
 
 # ── Latest discussions ────────────────────────────────────────────────────────
 

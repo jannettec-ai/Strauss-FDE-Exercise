@@ -374,8 +374,9 @@ else:
             st.markdown(
                 f"Next meeting: **{next_m['date']}** (Meeting #{next_m['meeting_id']})"
             )
-            if st.button("⚡ Go to Meeting Prep →", use_container_width=True, type="primary"):
-                st.session_state.selected_id = next_m["meeting_id"]
-                st.switch_page("pages/2_Meeting_Prep.py")
+            st.info(
+                f"Meeting #{next_m['meeting_id']} · "
+                "Go to **Meeting Prep** in the sidebar and select this meeting to generate a packet."
+            )
         else:
             st.caption("No upcoming meetings scheduled.")
