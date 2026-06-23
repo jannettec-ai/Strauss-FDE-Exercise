@@ -148,13 +148,17 @@ with st.sidebar:
                     st.session_state.packets[mid] = packet
                     if mid not in st.session_state.corrections:
                         st.session_state.corrections[mid] = {}
+                    price_delta = packet.get("price_delta")
                     record_generation(
                         supplier_name=packet["supplier_name"],
                         duration_seconds=duration,
                         packet_length_chars=len(str(packet)),
                         meeting_id=mid,
                         category=packet.get("category"),
-                        open_issues_count=packet.get("open_issues_count"),
+                        kpi_response_days=packet.get("avg_response_days"),
+                        kpi_open_issues=packet.get("open_issues_count"),
+                        kpi_price_delta_pct=price_delta["pct"] if price_delta else None,
+                        kpi_days_to_renewal=packet.get("days_to_renewal"),
                     )
                 except Exception as e:
                     st.error(f"Generation failed: {e}")

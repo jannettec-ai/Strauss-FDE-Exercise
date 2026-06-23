@@ -169,6 +169,8 @@ with st.expander("🔒 FDE Access", expanded=False):
 
         summary = get_summary()
 
+        import pandas as pd
+
         m1, m2, m3 = st.columns(3)
         with m1:
             st.metric("Total Packets Generated", summary["total_packets"])
@@ -178,28 +180,58 @@ with st.expander("🔒 FDE Access", expanded=False):
         with m3:
             st.metric("Unique Suppliers Queried", summary["unique_suppliers"])
 
-        st.divider()
-
-        if summary["daily_breakdown"]:
-            st.markdown("**Daily generation counts**")
-            import pandas as pd
-            df_daily = pd.DataFrame(summary["daily_breakdown"])
-            df_daily.columns = ["Date", "Packets", "Avg Duration (s)"]
-            st.dataframe(df_daily, use_container_width=True, hide_index=True)
-        else:
+        if not summary["total_packets"]:
             st.info("No generation events recorded yet. Generate a packet on the Meeting Prep page.")
+        else:
+            st.divider()
 
-        if summary["supplier_breakdown"]:
-            st.markdown("**By supplier**")
-            df_sup = pd.DataFrame(summary["supplier_breakdown"])
-            df_sup.columns = ["Supplier", "Packets", "Avg Duration (s)", "Avg Open Issues"]
-            st.dataframe(df_sup, use_container_width=True, hide_index=True)
+            # KPI summary aligned to metrics.md §1-5
+            st.markdown("**KPI summary across all packets generated (metrics.md §1–5)**")
+            kpi = summary["kpi_summary"]
+            k1, k2, k3, k4, k5 = st.columns(5)
+            with k1:
+                v = kpi.get("avg_response_days")
+                st.metric("§1 Avg Response Time", f"{v}d" if v else "—",
+                          help="Avg supplier reply time across all packets (metrics.md §1)")
+            with k2:
+                v = kpi.get("avg_open_issues")
+                st.metric("§2 Avg Open Issues", str(v) if v is not None else "—",
+                          help="Avg unresolved issues per packet (metrics.md §2)")
+            with k3:
+                v = kpi.get("avg_price_delta_pct")
+                st.metric("§3 Avg Price Delta", f"{v:+.1f}%" if v is not None else "—",
+                          help="Avg email price vs contract base across all packets (metrics.md §3)")
+            with k4:
+                v = kpi.get("avg_days_to_renewal")
+                st.metric("§4 Avg Days to Renewal", f"{int(v)}d" if v is not None else "—",
+                          help="Avg days to contract renewal date (metrics.md §4)")
+            with k5:
+                v = kpi.get("avg_correction_rate_pct")
+                st.metric("§5 Avg Correction Rate", f"{v}%" if v is not None else "—",
+                          help="Avg % of fields flagged as wrong (metrics.md §5) — populated when manager saves corrections")
 
-        if summary["recent_events"]:
-            st.markdown("**Last 10 events**")
-            df_recent = pd.DataFrame(summary["recent_events"])
-            df_recent["timestamp"] = df_recent["timestamp"].str[:19].str.replace("T", " ")
-            st.dataframe(df_recent, use_container_width=True, hide_index=True)
+            st.divider()
+
+            if summary["supplier_breakdown"]:
+                st.markdown("**Per-supplier KPI breakdown**")
+                df_sup = pd.DataFrame(summary["supplier_breakdown"])
+                df_sup.columns = [
+                    "Supplier", "Category", "Packets", "Avg Gen (s)",
+                    "§1 Response (d)", "§2 Open Issues", "§3 Price Delta %", "§4 Renewal (d)"
+                ]
+                st.dataframe(df_sup, use_container_width=True, hide_index=True)
+
+            if summary["daily_breakdown"]:
+                st.markdown("**Daily generation counts**")
+                df_daily = pd.DataFrame(summary["daily_breakdown"])
+                df_daily.columns = ["Date", "Packets", "Avg Duration (s)", "Avg Open Issues"]
+                st.dataframe(df_daily, use_container_width=True, hide_index=True)
+
+            if summary["recent_events"]:
+                st.markdown("**Last 10 generation events**")
+                df_recent = pd.DataFrame(summary["recent_events"])
+                df_recent["timestamp"] = df_recent["timestamp"].str.replace("T", " ")
+                st.dataframe(df_recent, use_container_width=True, hide_index=True)
 
         if st.button("Lock", key="fde_lock"):
             st.session_state.fde_authenticated = False
