@@ -99,31 +99,40 @@ def count_flags(meeting_id):
 
 
 @st.dialog("Source Document", width="large")
-def _doc_dialog(packet):
-    req = st.session_state.doc_request
-    if req is None:
+def _doc_dialog():
+    """Dialog body reads everything from session state so it always has fresh data."""
+    req = st.session_state.get("doc_request") or {}
+    supplier_num  = req.get("supplier_num", "")
+    supplier_name = req.get("supplier_name", "")
+    doc_type      = req.get("type", "")
+    highlight     = req.get("highlight")
+
+    if not supplier_num or not doc_type:
+        st.warning("No document selected.")
         return
 
-    if req["type"] == "emails":
-        emails = packet.get("raw_emails", [])
-        hl_date = req.get("highlight")
-        st.caption(f"**{packet['supplier_name']}** · {len(emails)} emails · most recent first")
+    # Import inline to avoid circular import at module level
+    from extraction import load_emails as _load_emails, load_contracts as _load_contracts
+
+    if doc_type == "emails":
+        with st.spinner("Loading email thread…"):
+            emails = _load_emails(supplier_num)
+        st.caption(f"**{supplier_name}** · {len(emails)} emails · most recent first")
         st.divider()
         for email in reversed(emails):
             is_strauss = "strauss-group.com" in email.get("from", "")
-            is_highlighted = bool(hl_date) and email.get("date", "") == hl_date
+            is_hl = bool(highlight) and email.get("date", "") == highlight
             direction = "→ Strauss out" if is_strauss else "← Supplier in"
             label = f"{email.get('date', '')}  {direction}  —  {email.get('subject', '')}"
-            with st.expander(label, expanded=is_highlighted):
-                st.caption(f"**From:** {email.get('from', '')}  **To:** {email.get('to', '')}")
+            with st.expander(label, expanded=is_hl):
+                st.caption(f"**From:** {email.get('from', '')}   **To:** {email.get('to', '')}")
                 st.markdown(email.get("body", ""))
 
-    elif req["type"] == "contract":
-        contracts = packet.get("raw_contracts", {})
-        hl_section = req.get("highlight", "")
-        if hl_section:
-            st.caption(f"📌 Referenced: _{hl_section}_")
-            st.divider()
+    elif doc_type == "contract":
+        with st.spinner("Loading contract…"):
+            contracts = _load_contracts(supplier_num)
+        if highlight:
+            st.info(f"📌 Referenced section: {highlight}")
         for fname, content in contracts.items():
             st.caption(f"📄 {fname}")
             st.markdown(content)
@@ -131,11 +140,16 @@ def _doc_dialog(packet):
 
 
 def src_link(key, packet, doc_type, source_text, highlight=None):
-    """Source caption + small open-document button (no column nesting)."""
+    """Source caption + button that opens the document in a modal dialog."""
     st.caption(f"📎 {source_text}")
     if st.button("📂 Open source document", key=key):
-        st.session_state.doc_request = {"type": doc_type, "highlight": highlight}
-        _doc_dialog(packet)
+        st.session_state.doc_request = {
+            "type": doc_type,
+            "highlight": highlight,
+            "supplier_num": packet.get("supplier_num", ""),
+            "supplier_name": packet.get("supplier_name", ""),
+        }
+        _doc_dialog()
 
 
 def save_correction_log(meeting_id, supplier_name, corrections, generated_at):
