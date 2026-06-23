@@ -29,6 +29,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+from ui_helpers import GLOBAL_CSS
+st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
+
 pg = st.navigation([
     st.Page("pages/0_Home.py",        title="Home",         icon="🏠", default=True),
     st.Page("pages/1_Suppliers.py",   title="Suppliers",    icon="🏭"),

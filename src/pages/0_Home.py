@@ -2,7 +2,6 @@
 
 import os
 import sys
-from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -12,6 +11,7 @@ import streamlit as st
 from packet_generator import get_upcoming_meetings
 from supplier_analytics import SUPPLIERS, get_all_summaries
 from utils.metrics import get_summary
+from ui_helpers import section_label, kpi_card, meeting_card, health_row, discussion_card
 
 # ── Cache ─────────────────────────────────────────────────────────────────────
 
@@ -54,13 +54,13 @@ contract_issues = [s for s in summaries if s["contract"]["status"] in ("expired"
 
 s1, s2, s3, s4 = st.columns(4)
 with s1:
-    st.metric("Upcoming Meetings", str(len(meetings)), help="Total meetings in calendar from today")
+    st.markdown(kpi_card(str(len(meetings)), "Upcoming Meetings", "From today"), unsafe_allow_html=True)
 with s2:
-    st.metric("This Week", str(len(meetings_this_week)), help="Meetings in the next 7 days")
+    st.markdown(kpi_card(str(len(meetings_this_week)), "This Week", "Next 7 days"), unsafe_allow_html=True)
 with s3:
-    st.metric("Suppliers at Risk", str(len(at_risk)), help="Relationship health = At risk")
+    st.markdown(kpi_card(str(len(at_risk)), "Suppliers at Risk", "Relationship health"), unsafe_allow_html=True)
 with s4:
-    st.metric("Contract Issues", str(len(contract_issues)), help="Expired, draft, or missing contracts")
+    st.markdown(kpi_card(str(len(contract_issues)), "Contract Issues", "Expired or missing"), unsafe_allow_html=True)
 
 st.divider()
 
@@ -69,61 +69,41 @@ st.divider()
 left, right = st.columns([3, 2], gap="large")
 
 with left:
-    st.subheader("Upcoming Meetings")
+    st.markdown(section_label("Upcoming Meetings"), unsafe_allow_html=True)
     if not meetings:
         st.info("No upcoming meetings in calendar.")
     else:
-        for m in meetings[:8]:
-            days = m["days_until"]
-            if days == 0:
-                badge = "🔴 **Today**"
-            elif days <= 3:
-                badge = f"🟠 in {days}d"
-            elif days <= 7:
-                badge = f"🟡 in {days}d"
-            else:
-                badge = f"⚪ in {days}d"
-
-            with st.container(border=True):
-                c1, c2, c3 = st.columns([2, 3, 2])
-                with c1:
-                    st.markdown(f"**{m['date']}**  \n{badge}")
-                with c2:
-                    st.markdown(f"**{m['supplier']}**  \n_{m.get('notes', '')}_")
-                with c3:
-                    st.caption(f"📍 {m.get('geography', '')}  \n🏷 {m['category']}")
-
+        cards_html = "".join(
+            meeting_card(
+                m["date"], m["supplier"], m["days_until"],
+                m.get("notes", ""), m.get("geography", ""), m["category"],
+            )
+            for m in meetings[:8]
+        )
+        st.markdown(cards_html, unsafe_allow_html=True)
         if len(meetings) > 8:
             st.caption(f"…and {len(meetings) - 8} more meetings")
-
         st.caption("→ Use **Meeting Prep** in the sidebar to generate a packet")
 
 with right:
-    st.subheader("Supplier Health")
-    for s in summaries:
-        contract = s["contract"]
-        health_icon = HEALTH_BADGE.get(s["health_label"], "⚪")
-        contract_badge = CONTRACT_BADGE.get(contract["status"], "⚪")
-        days_since = s["days_since_last_contact"]
-
-        with st.container(border=False):
-            c1, c2, c3 = st.columns([3, 2, 1])
-            with c1:
-                st.markdown(f"**{s['supplier_name']}**  \n{contract_badge}")
-            with c2:
-                st.caption(
-                    f"Last contact: {days_since}d ago" if days_since is not None else "No emails"
-                )
-            with c3:
-                st.markdown(f"### {health_icon}")
-
-        st.divider()
-
+    st.markdown(section_label("Supplier Health"), unsafe_allow_html=True)
+    rows_html = "".join(
+        health_row(
+            s["supplier_name"],
+            CONTRACT_BADGE.get(s["contract"]["status"], "⚪"),
+            s["health_label"],
+            s["days_since_last_contact"],
+        )
+        for s in summaries
+    )
+    st.markdown(rows_html, unsafe_allow_html=True)
     st.caption("→ Use **Suppliers** in the sidebar to view all profiles")
+
+st.divider()
 
 # ── Latest discussions ────────────────────────────────────────────────────────
 
-st.subheader("Latest Discussions")
+st.markdown(section_label("Latest Discussions"), unsafe_allow_html=True)
 st.caption("Most recent email per supplier, across all active relationships")
 
 latest = sorted(
@@ -137,13 +117,15 @@ for i, s in enumerate(latest):
     last = s["last_email"]
     sender = last["from"].split("@")[0].replace(".", " ").title()
     days_ago = s["days_since_last_contact"]
+    preview = last["body"][:200] + ("…" if len(last["body"]) > 200 else "")
     with cols[i % 2]:
-        with st.container(border=True):
-            st.markdown(f"**{s['supplier_name']}**  \n_{sender} · {last['date']} ({days_ago}d ago)_")
-            st.caption(f"📧 {last['subject']}")
-            with st.expander("Preview", expanded=False):
-                preview = last["body"][:300]
-                st.caption(preview + ("…" if len(last["body"]) > 300 else ""))
+        st.markdown(
+            discussion_card(
+                s["supplier_name"], sender, last["date"], days_ago,
+                last["subject"], preview,
+            ),
+            unsafe_allow_html=True,
+        )
 
 # ── FDE Dashboard (password-protected, not visible to end users) ──────────────
 
@@ -154,7 +136,10 @@ if "fde_authenticated" not in st.session_state:
 
 with st.expander("🔒 FDE Access", expanded=False):
     if not st.session_state.fde_authenticated:
-        pwd = st.text_input("Password", type="password", key="fde_pwd_input", label_visibility="collapsed", placeholder="FDE password")
+        pwd = st.text_input(
+            "Password", type="password", key="fde_pwd_input",
+            label_visibility="collapsed", placeholder="FDE password",
+        )
         if pwd:
             correct = os.environ.get("FDE_METRICS_PASSWORD", "")
             if pwd == correct:
@@ -165,10 +150,12 @@ with st.expander("🔒 FDE Access", expanded=False):
 
     if st.session_state.fde_authenticated:
         st.markdown("### FDE Metrics Dashboard")
-        st.caption("Generation events persisted to SQLite (data/metrics.db). Resets on Streamlit Cloud redeploy — production would use a persistent event store.")
+        st.caption(
+            "Generation events persisted to SQLite (data/metrics.db). "
+            "Resets on Streamlit Cloud redeploy — production would use a persistent event store."
+        )
 
         summary = get_summary()
-
         import pandas as pd
 
         m1, m2, m3 = st.columns(3)
@@ -184,8 +171,6 @@ with st.expander("🔒 FDE Access", expanded=False):
             st.info("No generation events recorded yet. Generate a packet on the Meeting Prep page.")
         else:
             st.divider()
-
-            # KPI summary aligned to metrics.md §1-5
             st.markdown("**KPI summary across all packets generated (metrics.md §1–5)**")
             kpi = summary["kpi_summary"]
             k1, k2, k3, k4, k5 = st.columns(5)
@@ -208,7 +193,7 @@ with st.expander("🔒 FDE Access", expanded=False):
             with k5:
                 v = kpi.get("avg_correction_rate_pct")
                 st.metric("§5 Avg Correction Rate", f"{v}%" if v is not None else "—",
-                          help="Avg % of fields flagged as wrong (metrics.md §5) — populated when manager saves corrections")
+                          help="Avg % of fields flagged as wrong (metrics.md §5)")
 
             st.divider()
 
@@ -217,7 +202,7 @@ with st.expander("🔒 FDE Access", expanded=False):
                 df_sup = pd.DataFrame(summary["supplier_breakdown"])
                 df_sup.columns = [
                     "Supplier", "Category", "Packets", "Avg Gen (s)",
-                    "§1 Response (d)", "§2 Open Issues", "§3 Price Delta %", "§4 Renewal (d)"
+                    "§1 Response (d)", "§2 Open Issues", "§3 Price Delta %", "§4 Renewal (d)",
                 ]
                 st.dataframe(df_sup, use_container_width=True, hide_index=True)
 

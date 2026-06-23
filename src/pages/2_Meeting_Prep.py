@@ -16,6 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import streamlit as st
+from ui_helpers import section_label
 
 if "ANTHROPIC_API_KEY" in st.secrets:
     os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
@@ -333,7 +334,7 @@ with k4:
 st.divider()
 
 # Open issues
-st.subheader(f"Open Issues ({len(issues)})")
+st.markdown(section_label(f"Open Issues ({len(issues)})"), unsafe_allow_html=True)
 if not issues:
     st.success("No open issues identified.")
 else:
@@ -358,7 +359,7 @@ st.divider()
 left, right = st.columns([3, 2], gap="large")
 
 with left:
-    st.subheader("Email Thread Summary")
+    st.markdown(section_label("Email Thread Summary"), unsafe_allow_html=True)
     st.markdown(packet["email_summary"])
     st.caption(
         f"Based on {packet['email_count']} emails · Avg supplier response: {packet['avg_response_days']}d"
@@ -369,7 +370,7 @@ with left:
         src_expander("src_email_summary", packet, "emails", fs["email_summary"])
 
     st.divider()
-    st.subheader("Contract at a Glance")
+    st.markdown(section_label("Contract at a Glance"), unsafe_allow_html=True)
     status = ct.get("status", "unknown")
     status_badge = {
         "active": "🟢 Active",
@@ -425,7 +426,7 @@ with left:
                 st.rerun()
 
 with right:
-    st.subheader("Pricing")
+    st.markdown(section_label("Pricing"), unsafe_allow_html=True)
     st.markdown(f"**Contract base price:** {ct.get('contract_base_price', '—')}")
 
     if lp.get("display"):
@@ -456,7 +457,7 @@ with right:
         st.caption("No email price quote to compare.")
 
     st.divider()
-    st.subheader("Commodity Benchmark")
+    st.markdown(section_label("Commodity Benchmark"), unsafe_allow_html=True)
     if bm:
         chg = bm.get("six_month_change_pct")
         chg_str = f"{chg:+.1f}%" if chg is not None else "n/a"

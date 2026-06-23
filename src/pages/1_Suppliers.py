@@ -24,8 +24,9 @@ from supplier_analytics import (
     load_emails,
 )
 from packet_generator import get_upcoming_meetings
+from ui_helpers import section_label, badge, supplier_dir_card_html, health_row
 
-# ── Cache the full summary load (reads 8 email files + 10 contract files) ────
+# ── Cache ─────────────────────────────────────────────────────────────────────
 
 @st.cache_data(ttl=300)
 def cached_all_summaries():
@@ -58,6 +59,7 @@ DIRECTION_LABEL = {
     "increasing": "⬆ Increasing",
     "decreasing": "⬇ Decreasing",
 }
+
 
 def days_to_renewal_display(renewal_date_str):
     if not renewal_date_str:
@@ -122,53 +124,51 @@ if st.session_state.selected_supplier is None:
         st.info("No suppliers match your search.")
         st.stop()
 
-    # Render supplier cards — 2 per row
     for i in range(0, len(filtered), 2):
         row_cols = st.columns(2, gap="large")
         for col, s in zip(row_cols, filtered[i:i+2]):
             with col:
                 contract = s["contract"]
-                health_icon = HEALTH_BADGE.get(s["health_label"], "⚪")
-                contract_badge = CONTRACT_BADGE.get(contract["status"], "⚪")
+                health_label = s["health_label"]
+                contract_badge_str = CONTRACT_BADGE.get(contract["status"], "⚪")
 
-                # Next meeting for this supplier
                 next_mtg = next(
                     (m for m in all_meetings if m["supplier"] == s["supplier_name"]),
                     None,
                 )
                 next_mtg_str = (
-                    f"Next meeting: **{next_mtg['date']}** (in {next_mtg['days_until']}d)"
+                    f"Next meeting: {next_mtg['date']} (in {next_mtg['days_until']}d)"
                     if next_mtg else "No upcoming meetings"
                 )
 
                 days_since = s["days_since_last_contact"]
                 last_contact_str = f"{days_since}d ago" if days_since is not None else "—"
 
-                with st.container(border=True):
-                    c1, c2 = st.columns([4, 1])
-                    with c1:
-                        st.markdown(f"### {s['supplier_name']}")
-                        st.caption(f"📍 {s['geography']} · 🏷 {s['category'].title()}")
-                    with c2:
-                        st.markdown(f"## {health_icon}")
-                        st.caption(s["health_label"])
+                renewal_str = ""
+                if contract.get("renewal_date"):
+                    renewal_str = f"Renewal: {days_to_renewal_display(contract['renewal_date'])}"
 
-                    st.markdown(
-                        f"{contract_badge} · "
-                        f"**{s['email_count']}** emails · "
-                        f"Last contact: {last_contact_str}"
-                    )
-                    if contract.get("renewal_date"):
-                        st.caption(f"Renewal: {days_to_renewal_display(contract['renewal_date'])}")
-                    st.caption(next_mtg_str)
-
-                    if st.button(
-                        "View profile →",
-                        key=f"view_{s['supplier_num']}",
-                        use_container_width=True,
-                    ):
-                        st.session_state.selected_supplier = s["supplier_num"]
-                        st.rerun()
+                st.markdown(
+                    supplier_dir_card_html(
+                        name=s["supplier_name"],
+                        geography=s["geography"],
+                        category=s["category"],
+                        contract_badge_str=contract_badge_str,
+                        health_label=health_label,
+                        email_count=s["email_count"],
+                        last_contact=last_contact_str,
+                        renewal=renewal_str,
+                        next_meeting=next_mtg_str,
+                    ),
+                    unsafe_allow_html=True,
+                )
+                if st.button(
+                    "View profile →",
+                    key=f"view_{s['supplier_num']}",
+                    use_container_width=True,
+                ):
+                    st.session_state.selected_supplier = s["supplier_num"]
+                    st.rerun()
 
 # ── Supplier profile view ─────────────────────────────────────────────────────
 
@@ -191,9 +191,9 @@ else:
         st.caption(f"📍 {s['geography']}  ·  🏷 {s['category'].title()}  ·  Supplier #{num}")
     with col_badge:
         health_icon = HEALTH_BADGE.get(s["health_label"], "⚪")
-        contract_badge = CONTRACT_BADGE.get(contract["status"], "⚪")
+        contract_badge_str = CONTRACT_BADGE.get(contract["status"], "⚪")
         st.metric("Relationship", f"{health_icon} {s['health_label']}")
-        st.caption(f"Contract: {contract_badge}")
+        st.caption(f"Contract: {contract_badge_str}")
 
     # Upcoming meetings for this supplier
     supplier_meetings = [m for m in all_meetings if m["supplier"] == s["supplier_name"]]
@@ -204,9 +204,7 @@ else:
             f"_{m.get('notes', '')}_ · {m.get('geography', '')}"
         )
         if len(supplier_meetings) > 1:
-            st.caption(
-                f"Also: " + ", ".join(f"{x['date']}" for x in supplier_meetings[1:])
-            )
+            st.caption("Also: " + ", ".join(f"{x['date']}" for x in supplier_meetings[1:]))
 
     st.divider()
 
@@ -250,9 +248,7 @@ else:
     left, right = st.columns([3, 2], gap="large")
 
     with left:
-
-        # Email frequency chart
-        st.subheader("Email Activity")
+        st.markdown(section_label("Email Activity"), unsafe_allow_html=True)
         by_month = s["email_by_month"]
         if by_month:
             df = pd.DataFrame.from_dict(by_month, orient="index", columns=["Emails"])
@@ -263,8 +259,7 @@ else:
 
         st.divider()
 
-        # Retention / relationship health breakdown
-        st.subheader("Relationship Health Analysis")
+        st.markdown(section_label("Relationship Health"), unsafe_allow_html=True)
 
         rt = s["response_trend"]
         vt = s["volume_trend"]
@@ -303,8 +298,7 @@ else:
 
         st.divider()
 
-        # Retention signal interpretation
-        st.subheader("Retention Signal")
+        st.markdown(section_label("Retention Signal"), unsafe_allow_html=True)
         health = s["health_label"]
         health_icon = HEALTH_BADGE.get(health, "⚪")
 
@@ -327,10 +321,9 @@ else:
 
     with right:
 
-        # Contract summary
-        st.subheader("Contract")
-        badge = CONTRACT_BADGE.get(contract["status"], "⚪")
-        st.markdown(f"**{contract.get('contract_id', '—')}** · {badge}")
+        st.markdown(section_label("Contract"), unsafe_allow_html=True)
+        badge_str = CONTRACT_BADGE.get(contract["status"], "⚪")
+        st.markdown(f"**{contract.get('contract_id', '—')}** · {badge_str}")
         if contract.get("renewal_date"):
             st.markdown(f"**Renewal date:** {contract['renewal_date']} ({days_to_renewal_display(contract['renewal_date'])})")
         else:
@@ -338,11 +331,10 @@ else:
 
         st.divider()
 
-        # Latest discussion
-        st.subheader("Latest Discussion")
+        st.markdown(section_label("Latest Discussion"), unsafe_allow_html=True)
         if emails:
             last = emails[-1]
-            prev_emails = emails[-4:-1]  # up to 3 prior messages
+            prev_emails = emails[-4:-1]
             st.markdown(
                 f"**{last['date']}** · {last['from'].split('@')[0].replace('.', ' ').title()}  \n"
                 f"_{last['subject']}_"
@@ -360,8 +352,7 @@ else:
 
         st.divider()
 
-        # Generate prep packet shortcut
-        st.subheader("Prep Packet")
+        st.markdown(section_label("Prep Packet"), unsafe_allow_html=True)
         if supplier_meetings:
             next_m = supplier_meetings[0]
             st.markdown(
