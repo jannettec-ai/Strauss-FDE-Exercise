@@ -449,89 +449,78 @@ def slide_human_loop(prs):
 
 
 def slide_kpis(prs):
-    """12 — KPIs with FDE tracking column."""
+    """12 — Two KPI tiers: adoption + extraction quality."""
     sl = blank(prs)
-    slide_header(sl, "Five KPIs — Measurable in 90 Days",
-                 "Defined in metrics.md · Captured per packet in SQLite · Visible in FDE dashboard")
+    slide_header(sl, "KPIs — Two Tiers, Both Tracked",
+                 "Adoption tells you if people use it. Extraction quality tells you if it's worth using.")
 
-    # Column headers
-    for left, width, label in [
-        (0.2, 0.5,  ""),
-        (0.8, 4.5,  "Definition & formula"),
-        (5.4, 3.5,  "How it is computed"),
-        (9.0, 2.0,  "Live example"),
-        (11.1, 2.0, "FDE tracking"),
-    ]:
-        bx = box(sl, left, 1.28, width, 0.38, fill=RED)
-        if label:
-            tb = txb(sl, left + 0.05, 1.3, width - 0.08, 0.34)
-            para(tb.text_frame, label, 10, bold=True, color=WHITE)
+    # ── Tier 1: Adoption KPIs ─────────────────────────────────────────────────
+    tb_t1 = txb(sl, 0.2, 1.28, 4.5, 0.32)
+    para(tb_t1.text_frame, "TIER 1  \u2014  ADOPTION  (is it being used?)", 10, bold=True, color=WHITE)
+    bar1 = sl.shapes.add_shape(1, Inches(0.2), Inches(1.28), Inches(12.95), Inches(0.32))
+    bar1.fill.solid(); bar1.fill.fore_color.rgb = DARK; bar1.line.fill.background()
+    tb_t1 = txb(sl, 0.3, 1.29, 12.7, 0.28)
+    para(tb_t1.text_frame, "TIER 1  \u2014  ADOPTION  (is it being used?)", 10, bold=True, color=WHITE)
 
-    kpis = [
-        (
-            "§1", "Supplier Response Time",
-            "Avg calendar days between each Strauss outbound email and the first supplier reply, across the 6-month window.",
-            "Computed locally from email date fields. No API call needed. Pairs matched chronologically per thread.",
-            "Galil Dairy: 11.2d avg",
-            "kpi_response_days stored per packet. Trend visible in per-supplier breakdown.",
-        ),
-        (
-            "§2", "Open Issues Count",
-            "Number of distinct unresolved threads or flagged items per supplier as of the most recent email date.",
-            "Claude API extraction pass. Each issue has type, description, source_ref, and status=open.",
-            "Galil: 2 open (price discrepancy + unanswered thread)",
-            "kpi_open_issues stored per packet. Avg across all packets shown in KPI tile.",
-        ),
-        (
-            "§3", "Price vs. Contract Delta",
-            "Latest email price quote minus contract base price. Absolute and percentage. Alert if delta > 0 without written amendment.",
-            "Computed locally. latest_price_quoted.value from Claude vs contract_base_price_numeric from contract.",
-            "Galil: +9.2% (+NIS 1.30/kg). Triggers red alert.",
-            "kpi_price_delta_pct stored per packet. Tracks which suppliers are consistently over contract.",
-        ),
-        (
-            "§4", "Days to Renewal",
-            "Calendar days from today to contract renewal date. Red <30d, amber 30-90d. Auto-renewal shows notice deadline.",
-            "Computed locally from contract renewal_date field vs system date. No API call.",
-            "Lowlands Dairy: no active contract flagged immediately.",
-            "kpi_days_to_renewal stored per packet. Surfaces suppliers approaching critical renewal window.",
-        ),
-        (
-            "§5", "Override / Correction Rate",
-            "% of AI-extracted fields flagged as wrong per packet by the manager. High rate = extraction needs tuning.",
-            "UI checkboxes in packet view. Saved to correction_log.csv when manager clicks Save. Joined to SQLite for aggregate view.",
-            "Target: <10% by day 90. Currently tracked per session.",
-            "kpi_correction_rate_pct written when manager saves corrections. Identifies which fields and suppliers have highest error rate.",
-        ),
+    adoption = [
+        ("Packets generated", "Total count of prep packets produced. Primary adoption signal — zero means the tool isn't being used.", "total_packets in SQLite"),
+        ("Unique suppliers queried", "How many distinct suppliers have had a packet generated. Breadth of adoption across the supplier roster.", "unique_suppliers in SQLite"),
+        ("Avg generation time (s)", "Average seconds per packet. Tracks performance — target <15s. Regression signal if it grows.", "avg_duration_sec in SQLite"),
+        ("Daily generation volume", "Packets per day over rolling 30 days. Reveals whether use is growing, flat, or dropping after initial curiosity.", "daily_breakdown table"),
+        ("Per-supplier frequency", "Which suppliers get prepped most often. Low frequency on a high-risk supplier = adoption gap.", "supplier_breakdown table"),
     ]
 
-    row_fills = [LGRAY, WHITE, LGRAY, WHITE, LGRAY]
-    for i, (tag, title, definition, computation, example, fde) in enumerate(kpis):
-        top = 1.72 + i * 1.13
-        fill = row_fills[i]
-        for left, width in [(0.2, 0.5), (0.8, 4.5), (5.4, 3.5), (9.0, 2.0), (11.1, 2.0)]:
-            box(sl, left, top, width, 1.08, fill=fill)
+    for i, (name, desc, col) in enumerate(adoption):
+        left = 0.2 + i * 2.6
+        bx = box(sl, left, 1.65, 2.5, 1.55, fill=LGRAY if i % 2 == 0 else WHITE)
+        tb_n = txb(sl, left + 0.1, 1.68, 2.3, 0.32)
+        para(tb_n.text_frame, name, 10, bold=True, color=DARK)
+        tb_d = txb(sl, left + 0.1, 2.0, 2.3, 0.9)
+        tf_d = tb_d.text_frame; tf_d.word_wrap = True
+        para(tf_d, desc, 8, color=DARK)
+        tb_c = txb(sl, left + 0.1, 2.98, 2.3, 0.2)
+        para(tb_c.text_frame, col, 7, color=GRAY)
 
-        # Tag
-        tag_b = sl.shapes.add_shape(1, Inches(0.22), Inches(top + 0.08), Inches(0.44), Inches(0.28))
-        tag_b.fill.solid(); tag_b.fill.fore_color.rgb = RED; tag_b.line.fill.background()
-        tb_tag = txb(sl, 0.23, top + 0.09, 0.42, 0.25)
-        para(tb_tag.text_frame, tag, 9, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    # ── Tier 2: Extraction Quality KPIs ──────────────────────────────────────
+    bar2 = sl.shapes.add_shape(1, Inches(0.2), Inches(3.32), Inches(12.95), Inches(0.32))
+    bar2.fill.solid(); bar2.fill.fore_color.rgb = RED; bar2.line.fill.background()
+    tb_t2 = txb(sl, 0.3, 3.33, 12.7, 0.28)
+    para(tb_t2.text_frame, "TIER 2  \u2014  EXTRACTION QUALITY  (is it worth using?)", 10, bold=True, color=WHITE)
 
-        # Title
-        tb_t = txb(sl, 0.23, top + 0.42, 0.44, 0.55)
-        tf_t = tb_t.text_frame; tf_t.word_wrap = True
-        para(tf_t, title, 8, bold=True, color=DARK)
+    kpis = [
+        ("§1", "Response Time",   "Avg days: Strauss outbound \u2192 first supplier reply", "kpi_response_days"),
+        ("§2", "Open Issues",     "Count of unresolved disputes, threads, contract gaps per supplier", "kpi_open_issues"),
+        ("§3", "Price Delta",     "Latest email quote vs contract base price — % and absolute", "kpi_price_delta_pct"),
+        ("§4", "Days to Renewal", "Calendar days to contract renewal date; red <30d", "kpi_days_to_renewal"),
+        ("§5", "Correction Rate", "% of AI fields flagged wrong by manager per packet", "kpi_correction_rate_pct"),
+    ]
 
-        for left, width, text in [
-            (0.85, 4.35, definition),
-            (5.45, 3.4,  computation),
-            (9.05, 1.9,  example),
-            (11.15, 1.9, fde),
-        ]:
-            tb = txb(sl, left, top + 0.06, width, 0.95)
-            tf = tb.text_frame; tf.word_wrap = True
-            para(tf, text, 9, color=DARK if text != fde else GRAY)
+    for i, (tag, name, desc, col) in enumerate(kpis):
+        left = 0.2 + i * 2.6
+        bx = box(sl, left, 3.68, 2.5, 3.55, fill=LGRAY if i % 2 == 0 else WHITE)
+        # Red tag pill
+        pill = sl.shapes.add_shape(1, Inches(left + 0.1), Inches(3.73), Inches(0.42), Inches(0.26))
+        pill.fill.solid(); pill.fill.fore_color.rgb = RED; pill.line.fill.background()
+        tb_tag = txb(sl, left + 0.11, 3.74, 0.4, 0.22)
+        para(tb_tag.text_frame, tag, 8, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+        tb_n = txb(sl, left + 0.6, 3.73, 1.8, 0.28)
+        para(tb_n.text_frame, name, 10, bold=True, color=DARK)
+        tb_d = txb(sl, left + 0.1, 4.05, 2.3, 1.6)
+        tf_d = tb_d.text_frame; tf_d.word_wrap = True
+        para(tf_d, desc, 9, color=DARK)
+        tb_c = txb(sl, left + 0.1, 6.85, 2.3, 0.3)
+        para(tb_c.text_frame, col, 7, color=GRAY)
+        # Target / signal line
+        targets = [
+            "Benchmark: <5d healthy\n>14d = relationship risk",
+            "Target: 0 open\nEach one costs prep time",
+            "Alert if >0%\nwithout written amendment",
+            "Red <30d, amber 30-90d\nauto-renewal notice shown",
+            "Target <10% by day 90\nHigh rate = retune prompt",
+        ]
+        tb_tgt = txb(sl, left + 0.1, 5.7, 2.3, 1.1)
+        tf_tgt = tb_tgt.text_frame; tf_tgt.word_wrap = True
+        para(tf_tgt, targets[i], 8, color=RED)
 
 
 def slide_kpi_inputs(prs):
