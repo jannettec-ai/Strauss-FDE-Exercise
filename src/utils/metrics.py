@@ -29,7 +29,8 @@ def _connect() -> sqlite3.Connection:
 
 
 def init_db() -> None:
-    """Create metrics.db and events table if they don't exist. Call at app startup."""
+    """Create metrics.db and events table if they don't exist. Call at app startup.
+    Also migrates existing tables to add KPI columns if missing."""
     with _connect() as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS generation_events (
@@ -38,22 +39,27 @@ def init_db() -> None:
                 meeting_id              INTEGER,
                 supplier_name           TEXT    NOT NULL,
                 category                TEXT,
-                -- Generation health
                 duration_seconds        REAL    NOT NULL,
                 packet_length_chars     INTEGER NOT NULL,
-                -- KPI §1: Supplier Response Time
                 kpi_response_days       REAL,
-                -- KPI §2: Open Issues Count
                 kpi_open_issues         INTEGER,
-                -- KPI §3: Price vs Contract Delta
                 kpi_price_delta_pct     REAL,
-                -- KPI §4: Days to Contract Renewal
                 kpi_days_to_renewal     INTEGER,
-                -- KPI §5: Correction Rate (written separately via correction_log.csv,
-                --         joined here when the manager saves corrections)
                 kpi_correction_rate_pct REAL
             )
         """)
+        # Migrate: add KPI columns if they don't exist (safe to run repeatedly)
+        existing = {row[1] for row in conn.execute("PRAGMA table_info(generation_events)")}
+        migrations = [
+            ("kpi_response_days",       "REAL"),
+            ("kpi_open_issues",         "INTEGER"),
+            ("kpi_price_delta_pct",     "REAL"),
+            ("kpi_days_to_renewal",     "INTEGER"),
+            ("kpi_correction_rate_pct", "REAL"),
+        ]
+        for col, col_type in migrations:
+            if col not in existing:
+                conn.execute(f"ALTER TABLE generation_events ADD COLUMN {col} {col_type}")
         conn.commit()
 
 
