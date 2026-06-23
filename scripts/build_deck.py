@@ -534,6 +534,86 @@ def slide_kpis(prs):
             para(tf, text, 9, color=DARK if text != fde else GRAY)
 
 
+def slide_kpi_inputs(prs):
+    """KPI data inputs — what data feeds each metric."""
+    sl = blank(prs)
+    slide_header(sl, "KPI Data Inputs",
+                 "Exactly what data each metric reads, where it comes from, and who computes it")
+
+    # Column headers
+    for left, width, label in [
+        (0.2,  1.3,  "KPI"),
+        (1.6,  2.8,  "Input fields"),
+        (4.5,  3.0,  "Source system (prototype)"),
+        (7.6,  2.8,  "Who computes it"),
+        (10.5, 2.65, "SQLite column stored"),
+    ]:
+        bx = box(sl, left, 1.28, width, 0.38, fill=RED)
+        tb = txb(sl, left + 0.06, 1.30, width - 0.1, 0.34)
+        para(tb.text_frame, label, 10, bold=True, color=WHITE)
+
+    rows = [
+        (
+            "§1\nResponse Time",
+            "email.date\nemail.from\nSubject (thread grouping)",
+            "data/emails/<supplier>.json\n111 synthetic emails\n6-month window",
+            "Python (local)\nNo API call\nsupplier_analytics.py",
+            "kpi_response_days\nREAL — avg days",
+        ),
+        (
+            "§2\nOpen Issues",
+            "Full email body text\nContract clause text\nIssue type / status",
+            "Same email JSONs\n+ data/contracts/*.md\nFed to Claude in one prompt",
+            "Claude API\nextraction.py\nReturns structured JSON",
+            "kpi_open_issues\nINTEGER — count",
+        ),
+        (
+            "§3\nPrice Delta",
+            "latest_price_quoted.value\nlatest_price_quoted.unit\ncontract_base_price_numeric",
+            "Price: Claude extraction\nfrom email body\nBase: contract Pricing section",
+            "Claude (price from email)\nPython delta calc (local)\npacket_generator.py",
+            "kpi_price_delta_pct\nREAL — % delta",
+        ),
+        (
+            "§4\nDays to Renewal",
+            "contract.renewal_date\nsystem date (today)\ncontract.status",
+            "data/contracts/*.md\nRenewal Date field\nStatus: active/expired/draft",
+            "Python (local)\ndate arithmetic only\nNo API call",
+            "kpi_days_to_renewal\nINTEGER — days",
+        ),
+        (
+            "§5\nCorrection Rate",
+            "Checkbox state per field\n8 trackable fields per packet\nManager flags in UI",
+            "Streamlit session state\ncorrection_log.csv (on Save)\nJoined to SQLite on save",
+            "UI interaction only\nPython writes log\nNo model involved",
+            "kpi_correction_rate_pct\nREAL — % flagged",
+        ),
+    ]
+
+    row_fills = [LGRAY, WHITE, LGRAY, WHITE, LGRAY]
+    col_specs = [(0.2, 1.3), (1.6, 2.8), (4.5, 3.0), (7.6, 2.8), (10.5, 2.65)]
+
+    for i, row in enumerate(rows):
+        top = 1.72 + i * 1.13
+        fill = row_fills[i]
+        for left, width in col_specs:
+            box(sl, left, top, width, 1.08, fill=fill)
+        for j, ((left, width), text) in enumerate(zip(col_specs, row)):
+            tb = txb(sl, left + 0.06, top + 0.06, width - 0.1, 0.95)
+            tf = tb.text_frame
+            tf.word_wrap = True
+            color = RED if j == 0 else DARK
+            bold = j == 0
+            para(tf, text, 9, bold=bold, color=color)
+
+    # Bottom note
+    tb_note = txb(sl, 0.2, 7.12, 12.9, 0.28)
+    para(tb_note.text_frame,
+         "§1, §3, §4 are pure Python (no API cost). §2 is the only metric that requires a Claude call. "
+         "§5 is populated only when the manager actively saves corrections.",
+         10, color=GRAY)
+
+
 def slide_production(prs):
     """New — Production architecture."""
     sl = blank(prs)
@@ -1128,7 +1208,8 @@ def build():
     slide_demo_packet(prs)     # 10
     slide_human_loop(prs)      # 11
     slide_kpis(prs)            # 12
-    slide_production(prs)      # 13 NEW
+    slide_kpi_inputs(prs)      # 13 NEW — data inputs per KPI
+    slide_production(prs)      # 14 NEW
     slide_rollout(prs)         # 14
     slide_risks(prs)           # 14 NEW
     slide_change_management(prs)      # 15
