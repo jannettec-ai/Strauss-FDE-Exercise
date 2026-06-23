@@ -34,6 +34,10 @@ if "selected_id" not in st.session_state:
     st.session_state.selected_id = None
 if "doc_request" not in st.session_state:
     st.session_state.doc_request = None
+if "_doc_open" not in st.session_state:
+    st.session_state._doc_open = 0
+if "_doc_shown" not in st.session_state:
+    st.session_state._doc_shown = 0
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -98,43 +102,19 @@ def count_flags(meeting_id):
     )
 
 
-def src_link(key, packet, doc_type, source_text, highlight=None):
-    """Source caption + button. Click sets session state; doc viewer re-renders on same rerun."""
-    st.caption(f"📎 {source_text}")
-    if st.button("📂 View source document", key=key):
-        st.session_state.doc_request = {
-            "type": doc_type,
-            "highlight": highlight,
-            "supplier_num": packet.get("supplier_num", ""),
-            "supplier_name": packet.get("supplier_name", ""),
-        }
-
-
-def render_doc_panel():
-    """Render the right-hand source document panel from session state."""
+@st.dialog("Source Document", width="large")
+def _doc_dialog():
+    """Popup document viewer. Called at top level before any columns."""
     from extraction import load_emails as _le, load_contracts as _lc
-
-    req = st.session_state.get("doc_request")
-    if not req:
-        st.markdown("#### Source Documents")
-        st.caption("Click **📂 View source document** next to any field to open the original here.")
-        return
-
+    req = st.session_state.doc_request or {}
     supplier_num  = req.get("supplier_num", "")
     supplier_name = req.get("supplier_name", "")
     doc_type      = req.get("type", "")
     highlight     = req.get("highlight")
 
-    hdr, close_btn = st.columns([5, 1])
-    with hdr:
-        icon = "📧" if doc_type == "emails" else "📄"
-        st.markdown(f"#### {icon} {supplier_name}")
-    with close_btn:
-        if st.button("✕", key="doc_close", help="Close document viewer"):
-            st.session_state.doc_request = None
-            st.rerun()
-
-    st.divider()
+    if not supplier_num or not doc_type:
+        st.warning("No document selected.")
+        return
 
     if doc_type == "emails":
         try:
@@ -142,27 +122,24 @@ def render_doc_panel():
         except Exception as e:
             st.error(f"Could not load emails: {e}")
             return
-        st.caption(f"{len(emails)} emails · most recent first")
+        st.caption(f"**{supplier_name}** · {len(emails)} emails · most recent first")
+        st.divider()
         for email in reversed(emails):
             is_strauss = "strauss-group.com" in email.get("from", "")
             is_hl = bool(highlight) and email.get("date", "") == highlight
-            direction = "→ Strauss" if is_strauss else "← Supplier"
+            direction = "→ Strauss out" if is_strauss else "← Supplier in"
             with st.container(border=True):
                 st.caption(
                     f"**{email.get('date','')}** · {direction} · "
-                    f"{email.get('from','').split('@')[0]}"
+                    f"_{email.get('subject','')}_"
                 )
-                st.caption(f"_{email.get('subject','')}_")
                 if is_hl:
+                    st.caption(f"From: {email.get('from','')}")
                     st.markdown(email.get("body", ""))
                 else:
-                    preview = email.get("body", "")[:200]
-                    with st.expander("Read full email"):
+                    with st.expander("Read email"):
+                        st.caption(f"From: {email.get('from','')}")
                         st.markdown(email.get("body", ""))
-                    if len(email.get("body","")) > 200:
-                        st.caption(preview + "…")
-                    else:
-                        st.caption(preview)
 
     elif doc_type == "contract":
         try:
@@ -175,6 +152,21 @@ def render_doc_panel():
         for fname, content in contracts.items():
             st.caption(f"📄 {fname}")
             st.markdown(content)
+
+
+def src_expander(key, packet, doc_type, source_text, highlight=None):
+    """📎 Source expander — collapsed by default, 'Open document' inside triggers popup."""
+    with st.expander("📎 Source", expanded=False):
+        st.caption(source_text)
+        if st.button("Open source document ↗", key=key):
+            st.session_state.doc_request = {
+                "type": doc_type,
+                "highlight": highlight,
+                "supplier_num": packet.get("supplier_num", ""),
+                "supplier_name": packet.get("supplier_name", ""),
+            }
+            st.session_state._doc_open += 1
+            st.rerun()
 
 
 def save_correction_log(meeting_id, supplier_name, corrections, generated_at):
@@ -266,6 +258,12 @@ if packet is None:
 
 # ── Render packet ─────────────────────────────────────────────────────────────
 
+# Fire dialog at the TOP LEVEL (before any columns) so it always works.
+# Uses a counter so it fires once per button click and stays closed after dismiss.
+if st.session_state._doc_open > st.session_state._doc_shown:
+    st.session_state._doc_shown = st.session_state._doc_open
+    _doc_dialog()
+
 ct = packet["contract_terms"]
 lp = packet["latest_price_quoted"]
 bm = packet["benchmark"]
@@ -308,8 +306,8 @@ if has_red:
 else:
     st.warning(f"⚠️ **Heads-up:** {packet['heads_up']}")
 if fs.get("heads_up"):
-    doc_type = "contract" if "contract" in fs["heads_up"].lower() else "email"
-    src_link("src_headsup", packet, doc_type, fs["heads_up"])
+    doc_type = "contract" if "contract" in fs["heads_up"].lower() else "emails"
+    src_expander("src_headsup", packet, doc_type, fs["heads_up"])
 
 # KPI row
 k1, k2, k3, k4 = st.columns(4)
@@ -352,15 +350,14 @@ else:
         else:
             st.info(msg)
         if src_ref:
-            src_link(f"src_issue_{i}", packet, doc_type, src_ref)
+            src_expander(f"src_issue_{i}", packet, doc_type, src_ref)
 
 st.divider()
 
-# Body: packet content (left) | source document viewer (right)
-# No st.columns() calls inside body_col — that's what broke the previous version.
-body_col, doc_col = st.columns([3, 2], gap="large")
+# Two-column body — original layout restored
+left, right = st.columns([3, 2], gap="large")
 
-with body_col:
+with left:
     st.subheader("Email Thread Summary")
     st.markdown(packet["email_summary"])
     st.caption(
@@ -369,7 +366,7 @@ with body_col:
         else f"Based on {packet['email_count']} emails"
     )
     if fs.get("email_summary"):
-        src_link("src_email_summary", packet, "emails", fs["email_summary"])
+        src_expander("src_email_summary", packet, "emails", fs["email_summary"])
 
     st.divider()
     st.subheader("Contract at a Glance")
@@ -412,11 +409,22 @@ with body_col:
         ("volume_commitment",   "Volume"),
         ("key_penalty",         "Penalty clause"),
     ]
-    first_contract_src = next((fs[fk] for fk, _ in contract_source_fields if fs.get(fk)), None)
-    if first_contract_src:
-        src_link("src_contract", packet, "contract", first_contract_src)
+    source_lines = [f"- **{lbl}:** {fs[fk]}" for fk, lbl in contract_source_fields if fs.get(fk)]
+    if source_lines:
+        with st.expander("📎 Source", expanded=False):
+            st.markdown("\n".join(source_lines))
+            if st.button("Open contract ↗", key="src_contract"):
+                first_src = next((fs[fk] for fk, _ in contract_source_fields if fs.get(fk)), None)
+                st.session_state.doc_request = {
+                    "type": "contract",
+                    "highlight": first_src,
+                    "supplier_num": packet.get("supplier_num", ""),
+                    "supplier_name": packet.get("supplier_name", ""),
+                }
+                st.session_state._doc_open += 1
+                st.rerun()
 
-    st.divider()
+with right:
     st.subheader("Pricing")
     st.markdown(f"**Contract base price:** {ct.get('contract_base_price', '—')}")
 
@@ -426,8 +434,8 @@ with body_col:
             f"_{lp.get('quoted_by', 'Unknown')} · {lp.get('date', '—')}_"
         )
         if fs.get("latest_price_quoted"):
-            src_link("src_price", packet, "emails", fs["latest_price_quoted"],
-                     highlight=lp.get("date"))
+            src_expander("src_price", packet, "emails", fs["latest_price_quoted"],
+                         highlight=lp.get("date"))
     else:
         st.markdown("**Latest quote:** No price quoted in email thread")
 
@@ -464,9 +472,6 @@ with body_col:
         st.caption(packet.get("commodity_benchmark", ""))
     else:
         st.caption(packet.get("commodity_benchmark", "No benchmark in scope for this category."))
-
-with doc_col:
-    render_doc_panel()
 
 # ── Correction tracking ───────────────────────────────────────────────────────
 
