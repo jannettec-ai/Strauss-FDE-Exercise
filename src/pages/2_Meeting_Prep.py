@@ -98,58 +98,83 @@ def count_flags(meeting_id):
     )
 
 
-@st.dialog("Source Document", width="large")
-def _doc_dialog():
-    """Dialog body reads everything from session state so it always has fresh data."""
-    req = st.session_state.get("doc_request") or {}
-    supplier_num  = req.get("supplier_num", "")
-    supplier_name = req.get("supplier_name", "")
-    doc_type      = req.get("type", "")
-    highlight     = req.get("highlight")
-
-    if not supplier_num or not doc_type:
-        st.warning("No document selected.")
-        return
-
-    # Import inline to avoid circular import at module level
-    from extraction import load_emails as _load_emails, load_contracts as _load_contracts
-
-    if doc_type == "emails":
-        with st.spinner("Loading email thread…"):
-            emails = _load_emails(supplier_num)
-        st.caption(f"**{supplier_name}** · {len(emails)} emails · most recent first")
-        st.divider()
-        for email in reversed(emails):
-            is_strauss = "strauss-group.com" in email.get("from", "")
-            is_hl = bool(highlight) and email.get("date", "") == highlight
-            direction = "→ Strauss out" if is_strauss else "← Supplier in"
-            label = f"{email.get('date', '')}  {direction}  —  {email.get('subject', '')}"
-            with st.expander(label, expanded=is_hl):
-                st.caption(f"**From:** {email.get('from', '')}   **To:** {email.get('to', '')}")
-                st.markdown(email.get("body", ""))
-
-    elif doc_type == "contract":
-        with st.spinner("Loading contract…"):
-            contracts = _load_contracts(supplier_num)
-        if highlight:
-            st.info(f"📌 Referenced section: {highlight}")
-        for fname, content in contracts.items():
-            st.caption(f"📄 {fname}")
-            st.markdown(content)
-            st.divider()
-
-
 def src_link(key, packet, doc_type, source_text, highlight=None):
-    """Source caption + button that opens the document in a modal dialog."""
+    """Source caption + button. Click sets session state; doc viewer re-renders on same rerun."""
     st.caption(f"📎 {source_text}")
-    if st.button("📂 Open source document", key=key):
+    if st.button("📂 View source document", key=key):
         st.session_state.doc_request = {
             "type": doc_type,
             "highlight": highlight,
             "supplier_num": packet.get("supplier_num", ""),
             "supplier_name": packet.get("supplier_name", ""),
         }
-        _doc_dialog()
+
+
+def render_doc_panel():
+    """Render the right-hand source document panel from session state."""
+    from extraction import load_emails as _le, load_contracts as _lc
+
+    req = st.session_state.get("doc_request")
+    if not req:
+        st.markdown("#### Source Documents")
+        st.caption("Click **📂 View source document** next to any field to open the original here.")
+        return
+
+    supplier_num  = req.get("supplier_num", "")
+    supplier_name = req.get("supplier_name", "")
+    doc_type      = req.get("type", "")
+    highlight     = req.get("highlight")
+
+    hdr, close_btn = st.columns([5, 1])
+    with hdr:
+        icon = "📧" if doc_type == "emails" else "📄"
+        st.markdown(f"#### {icon} {supplier_name}")
+    with close_btn:
+        if st.button("✕", key="doc_close", help="Close document viewer"):
+            st.session_state.doc_request = None
+            st.rerun()
+
+    st.divider()
+
+    if doc_type == "emails":
+        try:
+            emails = _le(supplier_num)
+        except Exception as e:
+            st.error(f"Could not load emails: {e}")
+            return
+        st.caption(f"{len(emails)} emails · most recent first")
+        for email in reversed(emails):
+            is_strauss = "strauss-group.com" in email.get("from", "")
+            is_hl = bool(highlight) and email.get("date", "") == highlight
+            direction = "→ Strauss" if is_strauss else "← Supplier"
+            with st.container(border=True):
+                st.caption(
+                    f"**{email.get('date','')}** · {direction} · "
+                    f"{email.get('from','').split('@')[0]}"
+                )
+                st.caption(f"_{email.get('subject','')}_")
+                if is_hl:
+                    st.markdown(email.get("body", ""))
+                else:
+                    preview = email.get("body", "")[:200]
+                    with st.expander("Read full email"):
+                        st.markdown(email.get("body", ""))
+                    if len(email.get("body","")) > 200:
+                        st.caption(preview + "…")
+                    else:
+                        st.caption(preview)
+
+    elif doc_type == "contract":
+        try:
+            contracts = _lc(supplier_num)
+        except Exception as e:
+            st.error(f"Could not load contract: {e}")
+            return
+        if highlight:
+            st.info(f"📌 Referenced: {highlight}")
+        for fname, content in contracts.items():
+            st.caption(f"📄 {fname}")
+            st.markdown(content)
 
 
 def save_correction_log(meeting_id, supplier_name, corrections, generated_at):
@@ -331,10 +356,11 @@ else:
 
 st.divider()
 
-# Two-column body
-left, right = st.columns([3, 2], gap="large")
+# Body: packet content (left) | source document viewer (right)
+# No st.columns() calls inside body_col — that's what broke the previous version.
+body_col, doc_col = st.columns([3, 2], gap="large")
 
-with left:
+with body_col:
     st.subheader("Email Thread Summary")
     st.markdown(packet["email_summary"])
     st.caption(
@@ -386,13 +412,11 @@ with left:
         ("volume_commitment",   "Volume"),
         ("key_penalty",         "Penalty clause"),
     ]
-    source_lines = [f"- **{lbl}:** {fs[fk]}" for fk, lbl in contract_source_fields if fs.get(fk)]
-    if source_lines:
-        first_src = next((fs[fk] for fk, _ in contract_source_fields if fs.get(fk)), None)
-        src_link("src_contract", packet, "contract", "\n".join(l.lstrip("- ") for l in source_lines[:1]),
-                 highlight=first_src)
+    first_contract_src = next((fs[fk] for fk, _ in contract_source_fields if fs.get(fk)), None)
+    if first_contract_src:
+        src_link("src_contract", packet, "contract", first_contract_src)
 
-with right:
+    st.divider()
     st.subheader("Pricing")
     st.markdown(f"**Contract base price:** {ct.get('contract_base_price', '—')}")
 
@@ -428,10 +452,10 @@ with right:
     if bm:
         chg = bm.get("six_month_change_pct")
         chg_str = f"{chg:+.1f}%" if chg is not None else "n/a"
-        direction = "▲" if chg and chg > 0 else ("▼" if chg and chg < 0 else "")
+        bm_dir = "▲" if chg and chg > 0 else ("▼" if chg and chg < 0 else "")
         st.markdown(
             f"**{bm['current_price']} {bm['unit']}** as of {bm['current_date']}  \n"
-            f"6-month change: {direction} {chg_str} "
+            f"6-month change: {bm_dir} {chg_str} "
             f"(from {bm['six_month_ago_price']} on {bm['six_month_ago_date']})"
         )
         st.caption(f"Source: {bm['source']}")
@@ -440,6 +464,9 @@ with right:
         st.caption(packet.get("commodity_benchmark", ""))
     else:
         st.caption(packet.get("commodity_benchmark", "No benchmark in scope for this category."))
+
+with doc_col:
+    render_doc_panel()
 
 # ── Correction tracking ───────────────────────────────────────────────────────
 
