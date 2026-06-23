@@ -20,7 +20,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
-from extraction import SUPPLIERS, run_extraction
+from extraction import SUPPLIERS, load_emails, load_contracts, run_extraction
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 
@@ -192,6 +192,10 @@ def run_packet(meeting_id: int) -> dict:
     # Run Claude extraction (the heavy step)
     extraction = run_extraction(supplier_num)
 
+    # Load raw documents for source viewer
+    raw_emails = load_emails(supplier_num)
+    raw_contracts = load_contracts(supplier_num)
+
     # Benchmark enrichment
     category = extraction.get("category", "other")
     benchmark = load_benchmark(category)
@@ -226,6 +230,10 @@ def run_packet(meeting_id: int) -> dict:
 
         # ── Benchmark (from CSV) ─────────────────────────────────────────
         "benchmark": benchmark,
+
+        # ── Raw source documents (for doc viewer) ───────────────────────
+        "raw_emails": raw_emails,
+        "raw_contracts": raw_contracts,
 
         # ── Meta ─────────────────────────────────────────────────────────
         "generated_at": datetime.utcnow().isoformat() + "Z",

@@ -32,6 +32,8 @@ if "corrections" not in st.session_state:
     st.session_state.corrections = {}
 if "selected_id" not in st.session_state:
     st.session_state.selected_id = None
+if "doc_view" not in st.session_state:
+    st.session_state.doc_view = None
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -94,6 +96,88 @@ def count_flags(meeting_id):
         1 for fk, _ in TRACKABLE_FIELDS
         if st.session_state.corrections.get(meeting_id, {}).get(fk, False)
     )
+
+
+def open_emails(packet, highlight_date=None):
+    """Load email thread into the doc viewer."""
+    emails = packet.get("raw_emails", [])
+    st.session_state.doc_view = {
+        "type": "emails",
+        "emails": emails,
+        "highlight_date": highlight_date,
+        "title": f"Email thread — {packet['supplier_name']}",
+    }
+
+
+def open_contract(packet, highlight_section=None):
+    """Load contract file(s) into the doc viewer."""
+    contracts = packet.get("raw_contracts", {})
+    st.session_state.doc_view = {
+        "type": "contract",
+        "contracts": contracts,
+        "highlight_section": highlight_section,
+        "title": f"Contract — {packet['supplier_name']}",
+    }
+
+
+def src_button(label, key, packet, doc_type, source_text, highlight=None):
+    """Render source caption + View button side by side."""
+    c1, c2 = st.columns([5, 1])
+    with c1:
+        st.caption(f"📎 {source_text}")
+    with c2:
+        if st.button("View ↗", key=key, help=f"Open source: {source_text}"):
+            if doc_type == "email":
+                open_emails(packet, highlight_date=highlight)
+            else:
+                open_contract(packet, highlight_section=highlight)
+
+
+def render_doc_viewer():
+    """Render the right-hand document viewer panel."""
+    dv = st.session_state.doc_view
+    if dv is None:
+        st.info("Click **View ↗** next to any field to open the source document here.")
+        return
+
+    c_title, c_close = st.columns([5, 1])
+    with c_title:
+        st.markdown(f"### {dv['title']}")
+    with c_close:
+        if st.button("✕ Close", key="doc_close"):
+            st.session_state.doc_view = None
+            st.rerun()
+
+    st.divider()
+
+    if dv["type"] == "emails":
+        hl = dv.get("highlight_date")
+        emails = dv.get("emails", [])
+        st.caption(f"{len(emails)} emails · most recent first")
+        for email in reversed(emails):
+            is_strauss = "strauss-group.com" in email.get("from", "")
+            highlight = hl and email.get("date", "") == hl
+            border_color = "#c8102e" if highlight else ("#e8f0fe" if is_strauss else "#f0f0f0")
+            with st.container(border=True):
+                d1, d2 = st.columns([2, 3])
+                with d1:
+                    st.caption(email.get("date", ""))
+                    direction = "→ Strauss out" if is_strauss else "← Supplier in"
+                    st.caption(direction)
+                with d2:
+                    st.caption(f"**From:** {email.get('from', '')}")
+                    st.caption(f"**Subj:** {email.get('subject', '')}")
+                with st.expander(email.get("subject", "Email"), expanded=highlight or False):
+                    st.markdown(email.get("body", ""))
+
+    elif dv["type"] == "contract":
+        contracts = dv.get("contracts", {})
+        hl = dv.get("highlight_section", "")
+        for fname, content in contracts.items():
+            st.caption(f"📄 {fname}")
+            if hl:
+                st.caption(f"_Relevant section: {hl}_")
+            st.markdown(content)
 
 
 def save_correction_log(meeting_id, supplier_name, corrections, generated_at):
@@ -227,8 +311,9 @@ if has_red:
 else:
     st.warning(f"⚠️ **Heads-up:** {packet['heads_up']}")
 if fs.get("heads_up"):
-    with st.expander("📎 Source", expanded=False):
-        st.caption(fs["heads_up"])
+    src_button("Heads-up source", "src_headsup", packet,
+               "contract" if "contract" in fs["heads_up"].lower() else "email",
+               fs["heads_up"])
 
 # KPI row
 k1, k2, k3, k4 = st.columns(4)
@@ -258,23 +343,27 @@ st.subheader(f"Open Issues ({len(issues)})")
 if not issues:
     st.success("No open issues identified.")
 else:
-    for issue in issues:
+    for i, issue in enumerate(issues):
         cfg = ISSUE_CONFIG.get(issue["issue_type"], ("⚪", issue["issue_type"], "info"))
         icon, label, level = cfg
-        msg = f"{icon} **{label}** — {issue['description']}  \n_Source: {issue['source_ref']}_"
+        src_ref = issue.get("source_ref", "")
+        doc_type = "contract" if any(w in src_ref.lower() for w in ("contract", "section", "clause")) else "email"
+        msg = f"{icon} **{label}** — {issue['description']}"
         if level == "error":
             st.error(msg)
         elif level == "warning":
             st.warning(msg)
         else:
             st.info(msg)
+        if src_ref:
+            src_button(f"Issue {i} source", f"src_issue_{i}", packet, doc_type, src_ref)
 
 st.divider()
 
-# Two-column body
-left, right = st.columns([3, 2], gap="large")
+# Two-column body: packet (left) + document viewer (right)
+pkt_col, doc_col = st.columns([3, 2], gap="large")
 
-with left:
+with pkt_col:
     st.subheader("Email Thread Summary")
     st.markdown(packet["email_summary"])
     st.caption(
@@ -283,8 +372,8 @@ with left:
         else f"Based on {packet['email_count']} emails"
     )
     if fs.get("email_summary"):
-        with st.expander("📎 Source", expanded=False):
-            st.caption(fs["email_summary"])
+        src_button("Email summary", "src_email_summary", packet, "email",
+                   fs["email_summary"])
 
     st.divider()
     st.subheader("Contract at a Glance")
@@ -321,18 +410,20 @@ with left:
         st.markdown(f"**{field_label}:** {field_value}")
 
     contract_source_fields = [
-        ("renewal_date",      "Renewal date"),
+        ("renewal_date",        "Renewal date"),
         ("contract_base_price", "Base price"),
-        ("payment_terms",     "Payment terms"),
-        ("volume_commitment", "Volume"),
-        ("key_penalty",       "Penalty clause"),
+        ("payment_terms",       "Payment terms"),
+        ("volume_commitment",   "Volume"),
+        ("key_penalty",         "Penalty clause"),
     ]
-    source_lines = [f"- **{lbl}:** {fs[fk]}" for fk, lbl in contract_source_fields if fs.get(fk)]
-    if source_lines:
-        with st.expander("📎 Source", expanded=False):
-            st.markdown("\n".join(source_lines))
+    # One combined contract source button covering all contract fields
+    contract_src_lines = [f"{lbl}: {fs[fk]}" for fk, lbl in contract_source_fields if fs.get(fk)]
+    if contract_src_lines:
+        src_button("Contract fields", "src_contract", packet, "contract",
+                   contract_src_lines[0],
+                   highlight=contract_src_lines[0].split(":", 1)[-1].strip())
 
-with right:
+    st.divider()
     st.subheader("Pricing")
     st.markdown(f"**Contract base price:** {ct.get('contract_base_price', '—')}")
 
@@ -342,8 +433,8 @@ with right:
             f"_{lp.get('quoted_by', 'Unknown')} · {lp.get('date', '—')}_"
         )
         if fs.get("latest_price_quoted"):
-            with st.expander("📎 Source", expanded=False):
-                st.caption(fs["latest_price_quoted"])
+            src_button("Latest price quote", "src_price", packet, "email",
+                       fs["latest_price_quoted"], highlight=lp.get("date"))
     else:
         st.markdown("**Latest quote:** No price quoted in email thread")
 
@@ -380,6 +471,10 @@ with right:
         st.caption(packet.get("commodity_benchmark", ""))
     else:
         st.caption(packet.get("commodity_benchmark", "No benchmark in scope for this category."))
+
+with doc_col:
+    st.markdown("#### Source Documents")
+    render_doc_viewer()
 
 # ── Correction tracking ───────────────────────────────────────────────────────
 
