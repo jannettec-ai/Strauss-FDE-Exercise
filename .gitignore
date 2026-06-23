@@ -26,3 +26,6 @@ Thumbs.db
 
 # Temp files from docx extraction
 /tmp/docx_extract/
+
+# Metrics database (local only — resets on Streamlit Cloud redeploy)
+data/metrics.db

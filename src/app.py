@@ -16,6 +16,12 @@ import streamlit as st
 if "ANTHROPIC_API_KEY" in st.secrets:
     os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
 
+if "FDE_METRICS_PASSWORD" in st.secrets:
+    os.environ["FDE_METRICS_PASSWORD"] = st.secrets["FDE_METRICS_PASSWORD"]
+
+from utils.metrics import init_db
+init_db()
+
 st.set_page_config(
     page_title="Strauss Procurement",
     page_icon="📋",

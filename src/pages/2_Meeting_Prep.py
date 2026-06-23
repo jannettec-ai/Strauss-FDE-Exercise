@@ -9,6 +9,7 @@ emails, contracts, and commodity prices.
 import csv
 import os
 import sys
+import time
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -18,6 +19,8 @@ import streamlit as st
 
 if "ANTHROPIC_API_KEY" in st.secrets:
     os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
+
+from utils.metrics import record_generation
 
 from packet_generator import get_upcoming_meetings, run_packet
 
@@ -139,10 +142,20 @@ with st.sidebar:
             mid = st.session_state.selected_id
             with st.spinner("Extracting supplier data and generating packet…"):
                 try:
+                    t_start = time.time()
                     packet = run_packet(mid)
+                    duration = time.time() - t_start
                     st.session_state.packets[mid] = packet
                     if mid not in st.session_state.corrections:
                         st.session_state.corrections[mid] = {}
+                    record_generation(
+                        supplier_name=packet["supplier_name"],
+                        duration_seconds=duration,
+                        packet_length_chars=len(str(packet)),
+                        meeting_id=mid,
+                        category=packet.get("category"),
+                        open_issues_count=packet.get("open_issues_count"),
+                    )
                 except Exception as e:
                     st.error(f"Generation failed: {e}")
     else:
