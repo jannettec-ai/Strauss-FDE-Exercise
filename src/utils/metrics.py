@@ -98,6 +98,26 @@ def record_generation(
         conn.commit()
 
 
+def update_correction_rate(meeting_id: int, rate_pct: float) -> None:
+    """
+    Back-fill kpi_correction_rate_pct on the most recent generation event
+    for a given meeting_id. Called when the PM saves field corrections in
+    the Meeting Prep UI (metrics.md §5).
+    """
+    with _connect() as conn:
+        conn.execute(
+            """
+            UPDATE generation_events
+            SET kpi_correction_rate_pct = ?
+            WHERE id = (
+                SELECT MAX(id) FROM generation_events WHERE meeting_id = ?
+            )
+            """,
+            (round(rate_pct, 1), meeting_id),
+        )
+        conn.commit()
+
+
 def get_summary() -> dict:
     """
     Return aggregate metrics for the FDE dashboard, aligned to metrics.md §1-5.

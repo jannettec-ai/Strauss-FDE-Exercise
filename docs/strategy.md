@@ -88,6 +88,28 @@ preparation coverage from an estimated 40% of meetings to 93% of
 meetings. We believe that coverage improvement has a commercial value,
 but we are not ready to put a number on it yet."
 
+## Delivered beyond the core packet
+
+Two supporting pages were added during the prototype build:
+
+- **Market Intel page** (`3_Pricing.py`): Portfolio-level commodity trend
+  charts (24-month history from static CSVs, live spot overlay from
+  yfinance), FX exposure table across all supplier currencies, and a
+  cost-of-money panel with live BOI/SOFR/EURIBOR rates and an early
+  payment APR calculator. Designed for procurement managers doing general
+  market review, not supplier-specific negotiation prep.
+
+- **Financial Analysis page** (`financial_decisions.py`): Supplier-specific
+  financial decision support, triggered from the Meeting Prep packet for
+  suppliers with active financial signals (FX exposure, early payment
+  discount, net-60+ payment term requests). Pre-populated from extraction
+  output; includes FX trend chart with AI directional commentary, early
+  payment APR vs cost-of-capital calculator, and payment terms working
+  capital impact. Lightweight Claude Haiku calls, cached per supplier.
+
+Both pages are additive to the core packet, not replacements for human
+judgment. The procurement analyst still owns the decision.
+
 ## Phase 2 ideas (not in current scope)
 
 - **Teams chat integration**: internal Teams chats are a natural next data

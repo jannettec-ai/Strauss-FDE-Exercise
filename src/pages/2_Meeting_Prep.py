@@ -23,7 +23,7 @@ from ui_helpers import section_label
 if "ANTHROPIC_API_KEY" in st.secrets:
     os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
 
-from utils.metrics import record_generation
+from utils.metrics import record_generation, update_correction_rate
 
 from packet_generator import get_upcoming_meetings, run_packet
 
@@ -636,4 +636,5 @@ with st.expander("🔍 Field Corrections (internal quality tracking)", expanded=
 
     if st.button("💾 Save corrections to log", key=f"save_log_{mid}"):
         save_correction_log(mid, packet["supplier_name"], corr, packet["generated_at"])
-        st.success(f"Saved to correction_log.csv — {n_flagged} field(s) flagged.")
+        update_correction_rate(mid, rate)  # metrics.md §5 — write to metrics.db
+        st.success(f"Saved — {n_flagged} field(s) flagged ({rate}% correction rate recorded).")

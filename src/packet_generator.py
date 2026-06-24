@@ -200,6 +200,11 @@ def run_packet(meeting_id: int) -> dict:
     category = extraction.get("category", "other")
     benchmark = load_benchmark(category)
 
+    # Note: **extracted spreads ALL Claude-extracted fields into the packet,
+    # including: email_summary, latest_price_quoted, contract_terms,
+    # open_issues, commodity_benchmark, heads_up, field_sources,
+    # financial_signals (contract_currency, early_payment_discount_rate/days,
+    # net_payment_days, delivery_reliability_score). See extraction.py prompt.
     return {
         # ── Meeting context ──────────────────────────────────────────────
         "meeting_id": meeting_id,

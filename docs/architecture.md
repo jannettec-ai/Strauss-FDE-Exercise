@@ -140,7 +140,7 @@ meeting in the calendar):
 | Data lake (Blob/S3) | Local file system | Not needed at 8-supplier scale |
 | Data warehouse (BigQuery) | Direct file reads | Overkill for synthetic data volume |
 | Vector store (Pinecone) | Single extraction pass | Justified at ~120 emails, changes at thousands |
-| Live commodity feed | Static CSV (one-time pull) | Removes demo-day network risk |
+| Live commodity feed (Bloomberg/Refinitiv) | Two-layer: static 24-month CSV for trend history (always available offline) + live fetch via yfinance and public central bank APIs for spot prices, FX rates, and lending rates at startup | Static history eliminates demo-day network risk for charts; live fetch keeps spot and FX current with fail-safe fallbacks |
 | Airflow orchestration | Manual trigger in Streamlit | Not needed for a single-team prototype |
 
 Every simplification is right-sized for 8 suppliers and a 3-day build,
