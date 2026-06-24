@@ -110,5 +110,13 @@
     "cc": ["yael.shapira@galildairy.co.il"],
     "subject": "Q2 Shipment 2 dispatched",
     "body": "David,\n\nSecond Q2 shipment (10 tons) dispatched today, truck IL-4883. ETA May 14. Q2 complete.\n\nOren"
+  },
+  {
+    "date": "2026-06-03",
+    "from": "yael.shapira@galildairy.co.il",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "Q2 pricing + Q3 planning",
+    "body": "David,\n\nFollowing up again on the ₪15.50/kg — we've now had two shipments go out at the old rate and I really need to get this resolved before Q3 invoicing starts. I understand you need to go through a formal process but can you give me a timeline?\n\nAlso, for Q3 we are planning similar volumes — can you confirm 20 tons for July-August?\n\nYael"
   }
 ]
