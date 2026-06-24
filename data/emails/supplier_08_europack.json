@@ -13,7 +13,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["agnieszka.kowalska@europack.pl"],
     "subject": "RE: Q1 packaging order — EuroPack",
-    "body": "David,\n\nHappy new year! Confirmed — 65,000 units ESP-CHOC-350 available for Q1. Production slot is week of January 26, delivery to your site around February 3-5.\n\nI'm copying Agnieszka Kowalska, our production coordinator, who will track the order through manufacturing.\n\nBest,\nMarek"
+    "body": "David,\n\nHappy new year! Confirmed — 65,000 units ESP-CHOC-350 available for Q1. Production slot is week of January 26, delivery to your site around February 3-5.\n\nI am copying Agnieszka Kowalska, our production coordinator, who will track the order through manufacturing.\n\nBest,\nMarek"
   },
   {
     "date": "2026-01-12",
@@ -21,7 +21,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["marek.wojcik@europack.pl"],
     "subject": "Production schedule — Q1 Strauss order",
-    "body": "Hi David,\n\nThis is Agnieszka from production. I have your Q1 order (65,000 units ESP-CHOC-350) scheduled for the print run January 26-28, packing January 29-30, dispatch February 2.\n\nPlease send your delivery address and preferred unloading hours.\n\nAgnieszka"
+    "body": "Hi David,\n\nThis is Agnieszka from production. I have your Q1 order (65,000 units ESP-CHOC-350) scheduled for print run January 26-28, packing January 29-30, dispatch February 2.\n\nPlease send your delivery address and preferred unloading hours.\n\nAgnieszka"
   },
   {
     "date": "2026-01-14",
@@ -37,7 +37,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["marek.wojcik@europack.pl"],
     "subject": "Q1 shipment dispatched",
-    "body": "David,\n\nQ1 order of 65,000 units (ESP-CHOC-350) dispatched February 2 via truck DHL Freight, AWB PL-202602-3841. ETA at Holon facility February 5.\n\nAgnieszka"
+    "body": "David,\n\nQ1 order of 65,000 units (ESP-CHOC-350) dispatched February 2 via DHL Freight, AWB PL-202602-3841. ETA at Holon facility February 5.\n\nAgnieszka"
   },
   {
     "date": "2026-02-17",
@@ -45,7 +45,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["agnieszka.kowalska@europack.pl", "piotr.nowak@europack.pl", "katarzyna.wisniewska@europack.pl"],
     "subject": "Q2 planning + important update on board spec",
-    "body": "David,\n\nHope the Q1 delivery was received well. Looking ahead to Q2 — we'd like to discuss a few things.\n\nFirst, on Q2 volume: we can support up to 80,000 units if your demand is growing. Let us know.\n\nSecond — and this is the main point of this email — our materials team has reviewed the current ESP-CHOC-350 specification (350gsm board) and has recommended an upgrade to 380gsm for structural integrity reasons. We've had two clients report minor compression issues with the 350gsm in hot weather transit, and our engineering team believes 380gsm eliminates this risk entirely. The 380gsm board is slightly heavier but fits the same die line and print spec, no changes needed to your artwork or packaging line.\n\nThe price impact is modest — PLN 1.93/unit vs PLN 1.85/unit under the current contract, roughly 4.3% increase.\n\nI've copied Piotr Nowak (technical lead) and Katarzyna Wisniewska (account management) for any follow-up questions on the spec side.\n\nLet me know your thoughts.\nMarek"
+    "body": "David,\n\nHope the Q1 delivery was received well. Looking ahead to Q2 — we can support up to 80,000 units if your demand is growing.\n\nThe main point of this email: our materials team has reviewed the current ESP-CHOC-350 specification and has recommended an upgrade to 380gsm for structural integrity reasons. Two clients have reported compression issues with 350gsm in hot weather transit. Our engineering team believes 380gsm eliminates this risk entirely. The 380gsm board fits the same die line and print spec — no changes to your artwork or packaging line.\n\nPrice impact: PLN 1.93/unit vs PLN 1.85/unit under the current contract — roughly 4.3% increase.\n\nNote: for any custom print runs below 50,000 units, a setup surcharge of PLN 2,800 applies for press setup and colour registration. Your standard volumes are above this threshold.\n\nI have copied Piotr Nowak (technical lead) and Katarzyna Wiśniewska (account management) for any follow-up.\n\nMarek"
   },
   {
     "date": "2026-02-20",
@@ -53,7 +53,7 @@
     "to": "marek.wojcik@europack.pl",
     "cc": ["agnieszka.kowalska@europack.pl"],
     "subject": "RE: Q2 planning + board spec",
-    "body": "Marek,\n\nQ2 volume — let's go with 70,000 units. On the board spec change — I've noted your reasoning. I'll need to run this by our packaging team and procurement manager before we can agree to anything. The spec and the pricing are both contract changes and would need a formal sign-off.\n\nCan you send the technical data sheet for the 380gsm board so our packaging engineers can review?\n\nDavid"
+    "body": "Marek,\n\nQ2 volume — let's go with 70,000 units. On the board spec change — I've noted your reasoning. I'll need to run this by our packaging team before we can agree to anything. The spec and the pricing are both contract changes and require formal sign-off.\n\nCan you send the technical data sheet for the 380gsm board so our packaging engineers can review?\n\nDavid"
   },
   {
     "date": "2026-02-23",
@@ -61,7 +61,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["marek.wojcik@europack.pl", "katarzyna.wisniewska@europack.pl"],
     "subject": "380gsm technical datasheet",
-    "body": "Hi David,\n\nThis is Piotr from our technical team. Attached is the datasheet for the 380gsm corrugated board we are proposing (EuroPack spec: EP-COR-380-B). Key improvements over the 350gsm:\n- Edge crush test (ECT): 42 N/mm vs 36 N/mm on current spec\n- Stacking strength: +18%\n- Moisture resistance: marginal improvement\n\nAll external dimensions and print registration remain identical — your lines will not need adjustment.\n\nLet me know if you have any technical questions.\n\nPiotr Nowak\nTechnical Manager, EuroPack Solutions"
+    "body": "Hi David,\n\nThis is Piotr from our technical team. Attached is the datasheet for the 380gsm corrugated board (EuroPack spec EP-COR-380-B). Key improvements over 350gsm:\n- Edge crush test (ECT): 42 N/mm vs 36 N/mm on current spec\n- Stacking strength: +18%\n- Moisture resistance: marginal improvement\n\nAll external dimensions and print registration remain identical.\n\nPiotr Nowak\nTechnical Manager, EuroPack Solutions"
   },
   {
     "date": "2026-03-10",
@@ -69,15 +69,15 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["marek.wojcik@europack.pl"],
     "subject": "Q2 production planning — confirming 380gsm",
-    "body": "Hi David,\n\nI'm starting to plan the Q2 production run for 70,000 units. Based on Marek's update, I've scheduled this on the 380gsm board line (EP-COR-380-B) with start date April 6.\n\nPlease confirm delivery address is the same as Q1 — Holon facility.\n\nAgnieszka"
+    "body": "Hi David,\n\nI am starting to plan the Q2 production run for 70,000 units. Based on Marek's update I have scheduled this on the 380gsm board line (EP-COR-380-B) with start date April 6.\n\nPlease confirm delivery address is the same as Q1 — Holon facility.\n\nAgnieszka"
   },
   {
     "date": "2026-03-12",
     "from": "david.cohen@strauss-group.com",
     "to": "agnieszka.kowalska@europack.pl",
     "cc": ["marek.wojcik@europack.pl"],
-    "subject": "RE: Q2 production planning",
-    "body": "Agnieszka, Marek,\n\nDelivery address is the same. On the 380gsm — I haven't formally confirmed the spec change yet. Our packaging team is still reviewing. Please don't assume this is agreed. I'll confirm separately on the spec question.\n\nDavid"
+    "subject": "RE: Q2 production planning — HOLD on 380gsm",
+    "body": "Agnieszka, Marek,\n\nDelivery address is the same. On the 380gsm — I have not formally confirmed the spec change. Our packaging team is still reviewing. Please do not assume this is agreed. I will confirm separately on the spec question.\n\nDo NOT start a 380gsm production run without my explicit written approval.\n\nDavid"
   },
   {
     "date": "2026-03-18",
@@ -85,15 +85,15 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["marek.wojcik@europack.pl", "agnieszka.kowalska@europack.pl", "piotr.nowak@europack.pl"],
     "subject": "Q2 order confirmation and invoice preview",
-    "body": "Dear David,\n\nThank you for confirming Q2 volume of 70,000 units and delivery address. I've prepared the Q2 pro-forma invoice for your records:\n\n- 70,000 units ESP-CHOC-380 @ PLN 1.93/unit\n- Total: PLN 135,100\n- Delivery: approx. April 10-12\n\nPlease let me know if you need any changes before we finalize.\n\nBest regards,\nKatarzyna Wisniewska\nAccount Manager, EuroPack Solutions"
+    "body": "Dear David,\n\nThank you for confirming Q2 volume of 70,000 units and delivery address. I have prepared the Q2 pro-forma invoice:\n\n- 70,000 units ESP-CHOC-380 @ PLN 1.93/unit\n- Total: PLN 135,100\n- Delivery: approx. April 10-12\n\nPlease let me know if any changes are needed.\n\nBest regards,\nKatarzyna Wiśniewska\nAccount Manager, EuroPack Solutions"
   },
   {
     "date": "2026-03-20",
     "from": "david.cohen@strauss-group.com",
     "to": "katarzyna.wisniewska@europack.pl",
     "cc": ["marek.wojcik@europack.pl"],
-    "subject": "RE: Q2 order — HOLD on spec",
-    "body": "Katarzyna,\n\nPlease do not process this as ESP-CHOC-380. The spec change to 380gsm has not been agreed. Our contract is for ESP-CHOC-350 at PLN 1.85/unit and any change to that requires a formal written change order signed by both parties.\n\nI am raising this internally. Please hold the Q2 run until we have clarity.\n\nDavid"
+    "subject": "RE: Q2 order — HOLD on spec — this has not been agreed",
+    "body": "Katarzyna,\n\nDo not process this as ESP-CHOC-380. The spec change has not been agreed. Our contract is for ESP-CHOC-350 at PLN 1.85/unit and any change requires a formal written change order signed by both parties.\n\nI told Agnieszka explicitly on March 12 not to start the 380gsm run. Marek, can you confirm with your team that this has been escalated correctly? I am concerned there is a coordination gap.\n\nDavid"
   },
   {
     "date": "2026-03-25",
@@ -101,7 +101,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["agnieszka.kowalska@europack.pl"],
     "subject": "RE: Q2 — production hold",
-    "body": "David,\n\nUnderstood, we have put the Q2 run on hold pending your sign-off. Note that if we miss the April 6 production slot, the next available window would be April 20, which pushes delivery to April 25-28.\n\nWe would appreciate a decision by March 30 to avoid further delay.\n\nMarek"
+    "body": "David,\n\nUnderstood — I apologise for the confusion. We have put the Q2 run on hold pending your sign-off. I have spoken with Agnieszka. It appears she was not copied on your March 12 email to me, which is why the 380gsm was still in the schedule. My oversight.\n\nIf we miss the April 6 production slot, the next available window is April 20, which pushes delivery to April 25-28. We would appreciate a decision by March 30 to avoid further delay.\n\nMarek"
   },
   {
     "date": "2026-04-08",
@@ -109,6 +109,6 @@
     "to": "marek.wojcik@europack.pl",
     "cc": [],
     "subject": "Q2 — proceed on original spec",
-    "body": "Marek,\n\nAfter internal review, we are not in a position to accept the spec change to 380gsm without a formal change order and pricing agreement. Please proceed with Q2 on the original ESP-CHOC-350 spec at PLN 1.85/unit. I understand this pushes delivery to late April.\n\nWe can discuss the 380gsm upgrade for Q3 if a change order can be prepared and agreed in advance.\n\nDavid"
+    "body": "Marek,\n\nAfter internal review, we are not in a position to accept the spec change to 380gsm without a formal change order and pricing agreement. Please proceed with Q2 on the original ESP-CHOC-350 spec at PLN 1.85/unit. I understand this pushes delivery to late April.\n\nWe can discuss the 380gsm upgrade for Q3 if a proper change order can be prepared and agreed in advance — the technical case is reasonable, we just cannot accept a unilateral spec and price change without paperwork.\n\nDavid"
   }
 ]

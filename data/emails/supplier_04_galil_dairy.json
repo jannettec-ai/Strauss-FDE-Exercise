@@ -13,7 +13,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": [],
     "subject": "RE: Q1 order confirmation — Galil",
-    "body": "David,\n\nShana tova and happy new year! Great to hear from you.\n\nConfirmed — 22 tons Grade A at ₪14.20/kg as per the contract. We'll split into two shipments, 11 tons each: first delivery around January 20, second around February 10. I'll have Oren in logistics send you the schedule.\n\nYael"
+    "body": "David,\n\nShana tova and happy new year! Great to hear from you.\n\nConfirmed — 22 tons Grade A at ₪14.20/kg as per the contract. We'll split into two shipments: first 11 tons around January 20, second 11 tons around February 10. I'll have Oren in logistics send you the schedule.\n\nAlso, as a reminder for your finance team — Galil offers a 2.5% discount on invoices settled within 10 days of issue date. Standard terms are net 30. Just flag it to them if they want to take advantage.\n\nYael"
   },
   {
     "date": "2026-01-09",
@@ -21,7 +21,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["yael.shapira@galildairy.co.il"],
     "subject": "Delivery schedule — Q1 Galil order",
-    "body": "Hi David,\n\nThis is Oren from logistics. Confirming the Q1 schedule:\n- Shipment 1: 11 tons, departure January 19, ETA your site January 22\n- Shipment 2: 11 tons, departure February 9, ETA February 12\n\nPlease send the unloading appointment details for each.\n\nOren"
+    "body": "Hi David,\n\nThis is Oren from logistics. Confirming Q1 schedule:\n- Shipment 1: 11 tons, departure January 19, ETA your site January 22\n- Shipment 2: 11 tons, departure February 9, ETA February 12\n\nPlease send unloading appointment details for each.\n\nOren"
   },
   {
     "date": "2026-01-20",
@@ -29,15 +29,15 @@
     "to": "david.cohen@strauss-group.com",
     "cc": [],
     "subject": "Shipment 1 dispatched",
-    "body": "David,\n\nShipment 1 (11 tons) dispatched this morning, truck number IL-3847. ETA Holon plant January 22 as scheduled.\n\nOren"
+    "body": "David,\n\nShipment 1 (11 tons) dispatched this morning, truck IL-3847. ETA Holon plant January 22 as scheduled. As with our previous deliveries, this shipment departed within the 5 business days from order confirmation that we quoted.\n\nOren"
   },
   {
-    "date": "2026-02-11",
+    "date": "2026-02-10",
     "from": "oren.levi@galildairy.co.il",
     "to": "david.cohen@strauss-group.com",
     "cc": [],
     "subject": "Shipment 2 dispatched",
-    "body": "David,\n\nShipment 2 (11 tons) dispatched, truck IL-4102. ETA February 13. Q1 order complete after this delivery.\n\nOren"
+    "body": "David,\n\nShipment 2 (11 tons) dispatched, truck IL-4102. ETA February 12. Q1 order complete after this delivery — again within the 5-business-day window, same as Shipment 1.\n\nOren"
   },
   {
     "date": "2026-02-25",
@@ -45,7 +45,7 @@
     "to": "yael.shapira@galildairy.co.il",
     "cc": [],
     "subject": "Q2 order — Galil",
-    "body": "Yael,\n\nLooking ahead to Q2 — we'll need approximately 20 tons Grade A again, probably split into two deliveries in April and May. Can you confirm availability and pricing?\n\nDavid"
+    "body": "Yael,\n\nLooking ahead to Q2 — we'll need approximately 20 tons Grade A again, split into two deliveries in April and May. Can you confirm availability and pricing?\n\nDavid"
   },
   {
     "date": "2026-03-03",
@@ -53,7 +53,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": [],
     "subject": "RE: Q2 order — Galil + market update",
-    "body": "David,\n\nQ2 — yes, we have availability for 20 tons. Happy to supply.\n\nOne thing I want to mention while I have you — the milk powder market has moved quite a bit since we signed the contract last September. Our input costs have gone up significantly and we're reviewing our pricing across customers for Q2 and beyond. Given where the market is right now, we'll need to move to ₪15.50/kg from Q2 onward. I know this is an increase from the current contract rate but the economics have changed.\n\nLet me know your thoughts on the Q2 order and the pricing.\n\nYael"
+    "body": "David,\n\nQ2 — yes, we have availability for 20 tons. Happy to supply.\n\nOne thing I want to mention while I have you — the milk powder market has moved quite a bit since we signed the contract last September. Our input costs have gone up significantly and we're reviewing pricing across customers for Q2. Given where the market is right now, we'll need to move to ₪15.50/kg from Q2 onward. I know it's a step up but the economics have really changed.\n\nLet me know your thoughts on the Q2 order and the pricing.\n\nYael"
   },
   {
     "date": "2026-03-06",
@@ -61,7 +61,7 @@
     "to": "yael.shapira@galildairy.co.il",
     "cc": [],
     "subject": "RE: Q2 order — Galil",
-    "body": "Yael,\n\nNoted on the pricing — I'll need to review this with our team internally. On the Q2 order itself, can you go ahead and send a delivery proposal for the 20 tons in April and May? We can sort out the commercial discussion separately.\n\nDavid"
+    "body": "Yael,\n\nNoted on the pricing — I'll need to review this with my team internally. On the Q2 order itself, can you go ahead and send a delivery proposal for the 20 tons in April and May? We can sort out the commercial discussion separately.\n\nDavid"
   },
   {
     "date": "2026-03-10",
@@ -76,8 +76,8 @@
     "from": "david.cohen@strauss-group.com",
     "to": "oren.levi@galildairy.co.il",
     "cc": [],
-    "subject": "RE: Q2 delivery proposal",
-    "body": "Oren,\n\nDelivery schedule confirmed. Please go ahead with the pro-forma invoice.\n\nOn the commercial side, Yael, I'm still reviewing the pricing discussion with my manager. I'll come back to you separately on that.\n\nDavid"
+    "subject": "RE: Q2 delivery proposal — confirmed",
+    "body": "Oren,\n\nDelivery schedule confirmed. Please go ahead with the pro-forma.\n\nYael — I'm still reviewing the pricing discussion with my manager. I'll come back to you separately on that.\n\nDavid"
   },
   {
     "date": "2026-04-14",
@@ -85,7 +85,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": [],
     "subject": "Q2 Shipment 1 dispatched",
-    "body": "David,\n\nFirst Q2 shipment (10 tons) dispatched this morning. ETA April 16.\n\nOren"
+    "body": "David,\n\nFirst Q2 shipment (10 tons) dispatched this morning. ETA April 16 — within the 5-business-day window as always.\n\nOren"
   },
   {
     "date": "2026-05-05",
@@ -93,14 +93,22 @@
     "to": "david.cohen@strauss-group.com",
     "cc": [],
     "subject": "Pricing — following up",
-    "body": "David,\n\nI want to follow up on the Q2 pricing. I raised ₪15.50/kg in early March and haven't heard back. The invoice for shipment 1 that Oren sent — I noticed it still shows ₪14.20/kg. We need to get alignment on this before shipment 2 goes out.\n\nCan we speak this week?\n\nYael"
+    "body": "David,\n\nI want to follow up on the Q2 pricing. I raised ₪15.50/kg in early March and haven't heard back. The invoice for Shipment 1 still shows ₪14.20/kg. We need to get alignment on this before Shipment 2 goes out.\n\nAlso just a reminder — the 2.5% early payment discount is still available on the Shipment 1 invoice if your finance team processes within 10 days of issue date. It expires soon.\n\nCan we speak this week?\n\nYael"
   },
   {
     "date": "2026-05-08",
     "from": "david.cohen@strauss-group.com",
     "to": "yael.shapira@galildairy.co.il",
     "cc": [],
-    "subject": "RE: Pricing — following up",
-    "body": "Yael,\n\nAppreciate you following up. This is still being reviewed on our end. I can't commit to a price change via email — this would need to go through a formal process. Let's schedule a call next week.\n\nDavid"
+    "subject": "RE: Pricing",
+    "body": "Yael,\n\nAppreciate you following up. This is still being reviewed on our end. I cannot commit to a price change via email — this would need to go through a formal process including a written amendment. Let's schedule a call next week.\n\nDavid"
+  },
+  {
+    "date": "2026-05-12",
+    "from": "oren.levi@galildairy.co.il",
+    "to": "david.cohen@strauss-group.com",
+    "cc": ["yael.shapira@galildairy.co.il"],
+    "subject": "Q2 Shipment 2 dispatched",
+    "body": "David,\n\nSecond Q2 shipment (10 tons) dispatched today, truck IL-4883. ETA May 14. Q2 complete.\n\nOren"
   }
 ]

@@ -5,7 +5,7 @@
     "to": "kwame.asante@goldencoastcocoa.com",
     "cc": [],
     "subject": "Q1 Order — Golden Coast",
-    "body": "Hi Kwame,\n\nHappy new year. We'd like to place our Q1 order of 30 tons standard grade. Can you confirm you can ship before end of January and send over the current pricing?\n\nThanks,\nDavid"
+    "body": "Hi Kwame,\n\nHappy new year. We'd like to place our Q1 order — 30 tons standard grade. Can you confirm pricing and send a delivery schedule?\n\nThanks,\nDavid"
   },
   {
     "date": "2026-01-10",
@@ -13,15 +13,23 @@
     "to": "david.cohen@strauss-group.com",
     "cc": [],
     "subject": "RE: Q1 Order — Golden Coast",
-    "body": "David,\n\nHappy new year to you too. Q1 price is $2,780/ton. We can ship the week of January 26, estimated arrival at your facility around February 10-14 depending on port.\n\nShall I raise the pro-forma invoice?\n\nKwame"
+    "body": "David,\n\nHappy new year. Q1 price is $2,780/ton. I'll copy Efua Mensah, our logistics coordinator, who will confirm the schedule and handle shipment documentation.\n\nShall I raise the pro-forma invoice?\n\nKwame"
+  },
+  {
+    "date": "2026-01-12",
+    "from": "efua.mensah@goldencoastcocoa.com",
+    "to": "david.cohen@strauss-group.com",
+    "cc": ["kwame.asante@goldencoastcocoa.com"],
+    "subject": "Delivery schedule — Q1 Strauss order",
+    "body": "Hi David,\n\nThis is Efua from logistics. For your Q1 order of 30 MT, our standard CIF lead time from Tema port to Ashdod is 12 business days from vessel loading date. We are targeting a loading date of January 26, which gives an estimated arrival at Ashdod of around February 11-13.\n\nPlease confirm and Kwame will raise the pro-forma.\n\nEfua"
   },
   {
     "date": "2026-01-13",
     "from": "david.cohen@strauss-group.com",
     "to": "kwame.asante@goldencoastcocoa.com",
-    "cc": [],
-    "subject": "RE: Q1 Order — Golden Coast",
-    "body": "Yes please — 30 tons at $2,780/ton. Feb 10-14 works. Send PFI when ready.\n\nDavid"
+    "cc": ["efua.mensah@goldencoastcocoa.com"],
+    "subject": "RE: Q1 Order — confirmed",
+    "body": "Confirmed — 30 tons at $2,780/ton. January 26 loading, February 11-13 ETA works. Please raise the PFI.\n\nDavid"
   },
   {
     "date": "2026-01-15",
@@ -29,7 +37,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": ["efua.mensah@goldencoastcocoa.com"],
     "subject": "Pro-Forma Invoice — GCC-2026-0047",
-    "body": "David,\n\nPlease find attached PFI GCC-2026-0047 for 30 MT standard grade cocoa at USD 2,780/MT. I've cc'd Efua Mensah from our logistics team who will handle the shipment coordination from Tema port.\n\nPlease confirm acceptance so we can begin loading.\n\nKwame"
+    "body": "David,\n\nPlease find attached PFI GCC-2026-0047 for 30 MT standard grade cocoa at USD 2,780/MT. Efua will coordinate the Tema port logistics from here.\n\nKwame"
   },
   {
     "date": "2026-01-16",
@@ -45,7 +53,7 @@
     "to": "efua.mensah@goldencoastcocoa.com",
     "cc": ["kwame.asante@goldencoastcocoa.com"],
     "subject": "Shipment update — GCC-2026-0047",
-    "body": "Hi Efua,\n\nWe're past the February 14 estimated arrival and haven't received the shipment or a tracking update. Can you confirm current status?\n\nDavid"
+    "body": "Hi Efua,\n\nWe are past the February 13 estimated arrival and have not received the shipment or a tracking update. Can you confirm current status?\n\nDavid"
   },
   {
     "date": "2026-02-21",
@@ -53,7 +61,7 @@
     "to": "david.cohen@strauss-group.com",
     "cc": [],
     "subject": "RE: Shipment update — GCC-2026-0047",
-    "body": "Hi David,\n\nApologies for delay in response. The vessel experienced a mechanical issue at sea and was diverted to Las Palmas for inspection. New ETA at your port is approximately March 3-5. Shipping line is MedLink and they are managing the situation. We will send updated B/L once vessel departs Las Palmas.\n\nEfua"
+    "body": "Hi David,\n\nApologies for the delay in responding. The vessel experienced a mechanical issue at sea and was diverted to Las Palmas for inspection and repair. We are now estimating 22 business days from the original loading date of January 26 — so revised ETA at Ashdod is approximately March 5-7.\n\nThe shipping line is MedLink and they are managing the situation. We will send the updated bill of lading once the vessel departs Las Palmas.\n\nEfua"
   },
   {
     "date": "2026-03-06",
@@ -61,7 +69,7 @@
     "to": "efua.mensah@goldencoastcocoa.com",
     "cc": ["kwame.asante@goldencoastcocoa.com"],
     "subject": "Shipment arrived — quality inspection pending",
-    "body": "Efua, Kwame,\n\nShipment arrived this morning. Our QC team is conducting the incoming inspection now — will revert once complete. Note we are already 3+ weeks past original delivery date, which under our contract triggers the delay penalty clause.\n\nDavid"
+    "body": "Efua, Kwame,\n\nShipment arrived this morning. Our QC team is conducting the incoming inspection now — will revert once complete. Note we are already 3+ weeks past the original 12-business-day delivery commitment, which under our contract triggers the delay penalty clause. We will address this separately.\n\nDavid"
   },
   {
     "date": "2026-03-08",
@@ -69,31 +77,31 @@
     "to": "kwame.asante@goldencoastcocoa.com",
     "cc": ["efua.mensah@goldencoastcocoa.com"],
     "subject": "Quality inspection result — ISSUE",
-    "body": "Kwame,\n\nOur QC has completed inspection on GCC-2026-0047 and we have a problem. Moisture content came in at 8.2% on average across the sampled bags (13 bags tested), with two bags as high as 9.1%. Our spec and your contract require <7.5% moisture. This is out of specification.\n\nWe need to discuss how you want to handle this — we are not in a position to accept this shipment at contract price. Please respond urgently as this is holding up production.\n\nDavid"
+    "body": "Kwame,\n\nOur QC has completed inspection on GCC-2026-0047 and we have a problem. Moisture content came in at 8.2% on average across the sampled bags (13 bags tested), with two bags as high as 9.1%. Our spec and your contract require less than 7.5% moisture. This is out of specification.\n\nWe need to discuss how you want to handle this — we are not in a position to accept this shipment at contract price. Please respond urgently.\n\nDavid"
   },
   {
     "date": "2026-03-11",
     "from": "kwame.asante@goldencoastcocoa.com",
     "to": "david.cohen@strauss-group.com",
     "cc": ["efua.mensah@goldencoastcocoa.com"],
-    "subject": "RE: Quality inspection result — ISSUE",
-    "body": "David,\n\nThank you for the update. We take quality seriously and I have reviewed this with our team.\n\nI must respectfully push back on your findings. Our pre-shipment inspection at Tema port on January 24 showed moisture at 6.8% — well within spec. The moisture reading of 8.2% is not consistent with what we shipped. We believe the issue may be related to the vessel diversion and the time spent at Las Palmas — extended transit in a non-standard hold environment.\n\nWe do not consider this a Golden Coast quality failure. We shipped compliant product. We would request an independent third-party moisture test before discussing any price adjustment.\n\nKwame"
+    "subject": "RE: Quality inspection result — our position",
+    "body": "David,\n\nThank you for the update. I have reviewed this with our team.\n\nI must respectfully push back on your findings. Our pre-shipment inspection at Tema on January 24 showed moisture at 6.8% — well within spec. A reading of 8.2% at destination is not consistent with what we shipped. Our position is that the moisture increase occurred during the Las Palmas diversion — extended transit in a non-standard hold environment over that period.\n\nWe shipped compliant product. We do not consider this a Golden Coast quality failure. We would request an independent third-party moisture test before any discussion of price adjustment.\n\nKwame"
   },
   {
     "date": "2026-03-14",
     "from": "david.cohen@strauss-group.com",
     "to": "kwame.asante@goldencoastcocoa.com",
     "cc": [],
-    "subject": "RE: Quality inspection result — ISSUE",
-    "body": "Kwame,\n\nWe understand your position, but we do not have a copy of your January 24 pre-shipment moisture report. Can you send that documentation? \n\nWe are open to an independent test but need to agree on the testing lab and who bears the cost. Our position is that the product arrived out of spec, and that is what we took delivery of. We are using this batch under protest while we resolve the dispute, but we will not pay the full contract price for non-conforming goods.\n\nDavid"
+    "subject": "RE: Quality dispute — our position",
+    "body": "Kwame,\n\nWe understand your argument on transit conditions, but our contract is clear: risk passes at destination, not at origin. The product arrived out of spec. We do not have a copy of your January 24 pre-shipment moisture report — please send it.\n\nWe are open to an independent test but we need to agree on the lab and cost allocation first. We are using this batch under protest while we resolve the dispute. We will not pay full contract price for non-conforming goods.\n\nDavid"
   },
   {
     "date": "2026-03-19",
     "from": "kwame.asante@goldencoastcocoa.com",
     "to": "david.cohen@strauss-group.com",
     "cc": [],
-    "subject": "RE: Quality inspection result — pre-shipment cert attached",
-    "body": "David,\n\nPlease see the attached pre-shipment moisture certificate from SGS Ghana (cert ref: SGS-GH-2026-00312, dated January 24). Result: 6.8% moisture, within spec.\n\nWe propose SGS Netherlands for the independent test. Costs to be split equally. If the result confirms our position (i.e. the product was in spec when shipped), we expect full payment at contract price plus the cost of the independent test.\n\nKwame"
+    "subject": "RE: Quality dispute — pre-shipment certificate",
+    "body": "David,\n\nPlease see the attached pre-shipment moisture certificate from SGS Ghana (cert ref: SGS-GH-2026-00312, January 24). Result: 6.8% moisture, within spec.\n\nWe propose SGS Netherlands for the independent test, costs split equally. If the result confirms our position, we expect full payment at contract price plus the cost of the independent test.\n\nKwame"
   },
   {
     "date": "2026-04-02",
@@ -101,6 +109,22 @@
     "to": "kwame.asante@goldencoastcocoa.com",
     "cc": [],
     "subject": "RE: Quality dispute — update",
-    "body": "Kwame,\n\nWe have reviewed the SGS Ghana certificate. We are not disputing that the product may have been within spec at loading, but our receipt test is what governs under the contract — risk passes at destination, not at origin. We are still reviewing the contract language with our legal team.\n\nOn SGS Netherlands — we can agree to that lab but need to clarify the split only covers the test cost, not any broader liability conclusion. We'll revert early next week.\n\nDavid"
+    "body": "Kwame,\n\nWe have reviewed the SGS Ghana certificate. We are not disputing the product may have been within spec at loading. But our receipt test governs under the contract — risk passes at destination. We are reviewing the contract language with our legal team.\n\nOn SGS Netherlands — we can agree to that lab but the cost split only covers the test cost, not broader liability conclusions. We will revert early next week.\n\nDavid"
+  },
+  {
+    "date": "2026-04-14",
+    "from": "kwame.asante@goldencoastcocoa.com",
+    "to": "david.cohen@strauss-group.com",
+    "cc": [],
+    "subject": "RE: Quality dispute — still waiting",
+    "body": "David,\n\nIt has now been two weeks since your last message and we have not heard your final position on the independent test. We are holding the invoice pending resolution. Please advise — we cannot leave this open indefinitely.\n\nKwame"
+  },
+  {
+    "date": "2026-04-18",
+    "from": "david.cohen@strauss-group.com",
+    "to": "kwame.asante@goldencoastcocoa.com",
+    "cc": [],
+    "subject": "RE: Quality dispute",
+    "body": "Kwame,\n\nApologies for the delay — this went to our legal team for review and has taken longer than expected. We are still finalising our position on the risk-transfer clause. I expect to have something for you by end of April.\n\nDavid"
   }
 ]
