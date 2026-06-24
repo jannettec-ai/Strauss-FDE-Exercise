@@ -44,14 +44,24 @@ do not redefine a metric inline.
 - `docs/strategy.md` — rollout phases, risks, ROI case, change management
 
 ## Pricing data decision
-Cocoa (CC=F) and sugar (SB=F) futures: pulled once via a one-time script
-(yfinance or similar), saved as static CSV in /data/prices. The live
-prototype reads from that CSV, not a live API or MCP connection, to remove
-demo-day network risk. Dairy data is genuinely thin/inconsistent on public
-sources, do not fabricate clean dairy numbers, document the gap as real
-data messiness instead. MCP is referenced only in the architecture
-narrative (docs/strategy.md), as the production-path upgrade, not built
-into this prototype.
+Two-layer approach:
+
+**Historical series (24-month weekly):** Cocoa (CC=F) and sugar (SB=F)
+pulled once via `scripts/pull_prices.py` and saved as static CSVs in
+`data/prices/`. Used for trend charts on the Market Intel page and for
+the 6-month benchmark in meeting packets. Dairy (DC=F) data is genuinely
+thin on Yahoo Finance — the gap is documented as realistic data messiness
+rather than fabricated.
+
+**Live spot prices + FX + lending rates:** Fetched at app startup via
+`utils/data_fetcher.py` using yfinance (CC=F, SB=F, DC=F), Yahoo Finance
+FX tickers (USDILS=X, EURILS=X, PLNILS=X, GBPILS=X), Bank of Israel
+prime rate API, and NY Fed SOFR API. Cached in `st.session_state` for
+the session. All fetches are fail-safe with labeled fallbacks — if a
+source is unavailable the app loads normally with a fallback value and
+source label. Live data powers the Market Intel page (3_Pricing.py)
+and financial analysis features. No Anthropic API quota is consumed by
+these fetches — yfinance and the public rate APIs are free and keyless.
 
 ## Out of scope (deliberately)
 - Negotiation strategy / pricing decisions themselves (human judgment stays

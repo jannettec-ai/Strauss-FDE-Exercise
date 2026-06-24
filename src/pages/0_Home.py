@@ -90,8 +90,7 @@ with right:
     rows_html = "".join(
         health_row(
             s["supplier_name"],
-            CONTRACT_BADGE.get(s["contract"]["status"], "⚪"),
-            s["health_label"],
+            s["combined_health_label"],
             s["days_since_last_contact"],
         )
         for s in summaries

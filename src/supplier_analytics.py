@@ -163,6 +163,28 @@ def parse_contract_quick(supplier_num: str) -> dict:
     return {"status": status, "contract_id": contract_id, "renewal_date": renewal_date}
 
 
+_CONTRACT_SCORE = {
+    "active": 2,
+    "draft": 1,
+    "expired": 0,
+    "no_active_contract": 0,
+    "unknown": 1,
+}
+
+_RELATIONSHIP_SCORE = {"Healthy": 2, "Stable": 1, "At risk": 0}
+
+
+def combined_health(relationship_label: str, contract_status: str) -> tuple[str, str]:
+    """Average relationship and contract scores into a single signal."""
+    avg = (_RELATIONSHIP_SCORE.get(relationship_label, 1) + _CONTRACT_SCORE.get(contract_status, 1)) / 2
+    if avg >= 1.5:
+        return "Healthy", "green"
+    elif avg >= 0.75:
+        return "Stable", "orange"
+    else:
+        return "At risk", "red"
+
+
 def relationship_health(
     resp_trend: dict,
     vol_trend: dict,
@@ -200,6 +222,7 @@ def get_supplier_summary(supplier_num: str) -> dict:
     vol_trend = compute_volume_trend(emails)
     days_since = days_since_last_contact(emails)
     health_label, health_color = relationship_health(resp_trend, vol_trend, days_since)
+    combined_label, combined_color = combined_health(health_label, contract["status"])
 
     return {
         "supplier_num": supplier_num,
@@ -214,6 +237,8 @@ def get_supplier_summary(supplier_num: str) -> dict:
         "days_since_last_contact": days_since,
         "health_label": health_label,
         "health_color": health_color,
+        "combined_health_label": combined_label,
+        "combined_health_color": combined_color,
         "last_email": emails[-1] if emails else None,
         "first_email_date": emails[0]["date"] if emails else None,
         "last_email_date": emails[-1]["date"] if emails else None,

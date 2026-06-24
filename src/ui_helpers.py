@@ -74,9 +74,9 @@ html, body, [class*="css"] {
 }
 
 /* ── Headings ── */
-h1 { font-weight: 700 !important; color: #0f172a !important; letter-spacing: -0.02em !important; }
-h2 { font-weight: 600 !important; color: #0f172a !important; }
-h3 { font-weight: 600 !important; color: #1e293b !important; }
+h1 { font-size: 1.9rem !important; font-weight: 700 !important; color: #0f172a !important; letter-spacing: -0.02em !important; }
+h2 { font-size: 1.35rem !important; font-weight: 600 !important; color: #0f172a !important; }
+h3 { font-size: 1.1rem !important; font-weight: 600 !important; color: #1e293b !important; }
 
 /* ── Primary buttons ── */
 [data-testid="stBaseButton-primary"] button,
@@ -325,6 +325,50 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   padding: 0;
 }
 
+/* ── Markdown content containers: prevent heading bleed and overflow ── */
+[data-testid="stMarkdownContainer"] {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  overflow: hidden !important;
+}
+[data-testid="stMarkdownContainer"] h1 {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  margin: 0.6rem 0 0.3rem !important;
+}
+[data-testid="stMarkdownContainer"] h2 {
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  margin: 0.5rem 0 0.25rem !important;
+}
+[data-testid="stMarkdownContainer"] h3,
+[data-testid="stMarkdownContainer"] h4 {
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  margin: 0.4rem 0 0.2rem !important;
+}
+[data-testid="stMarkdownContainer"] p {
+  font-size: 0.88rem !important;
+  line-height: 1.6 !important;
+  margin: 0.2rem 0 !important;
+}
+[data-testid="stMarkdownContainer"] ul,
+[data-testid="stMarkdownContainer"] ol {
+  font-size: 0.88rem !important;
+  padding-left: 1.2rem !important;
+  margin: 0.2rem 0 !important;
+}
+[data-testid="stMarkdownContainer"] li {
+  margin-bottom: 0.15rem !important;
+  line-height: 1.5 !important;
+}
+
 .s-dir-card {
   background: white;
   border-radius: 14px;
@@ -408,7 +452,6 @@ def meeting_card(
 
 def health_row(
     name: str,
-    contract_badge_str: str,
     health_label: str,
     days_since: Optional[int],
 ) -> str:
@@ -423,7 +466,6 @@ def health_row(
         f'  <div class="s-dot {dot_cls}"></div>'
         f'  <div class="s-info">'
         f'    <div class="s-name">{name}</div>'
-        f'    <div class="s-contract">{contract_badge_str}</div>'
         f'  </div>'
         f'  <div class="s-since">{since_str}</div>'
         f'</div>'
