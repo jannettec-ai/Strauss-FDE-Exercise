@@ -44,8 +44,8 @@ st.sidebar.caption(f"Market data as of: {_as_of}")
 
 pg = st.navigation([
     st.Page("pages/0_Home.py",        title="Home",         icon="🏠", default=True),
-    st.Page("pages/1_Suppliers.py",   title="Suppliers",    icon="🏭"),
     st.Page("pages/2_Meeting_Prep.py",title="Meeting Prep", icon="⚡"),
     st.Page("pages/3_Pricing.py",     title="Market Intel", icon="📈"),
+    st.Page("pages/1_Suppliers.py",   title="Suppliers",    icon="🏭"),
 ])
 pg.run()
