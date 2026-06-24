@@ -217,6 +217,14 @@ Return a single JSON object with exactly these fields. No markdown fences.
     "volume_commitment": "<e.g. 'Contract STR-DAIRY-2025-014, Section 3.2 Volume'>",
     "key_penalty": "<e.g. 'Contract STR-DAIRY-2025-014, Section 9.3 Penalties'>",
     "heads_up": "<e.g. 'Synthesized from email 2026-03-03 (price proposal) and contract Section 4.2 (amendment requirement)'>"
+  }},
+
+  "financial_signals": {{
+    "contract_currency": "<primary currency code for this supplier's invoices and contract pricing: 'ILS' if ₪, 'USD' if $, 'EUR' if €, 'PLN' if PLN. Use the currency that appears in contract pricing clauses and email invoices.>",
+    "early_payment_discount_rate": <decimal rate if any email mentions early payment discount e.g. 0.025 for '2.5% discount', or null>,
+    "early_payment_discount_days": <integer days within which payment earns the discount e.g. 10 for 'paid within 10 days', or null>,
+    "net_payment_days": <standard payment window as integer e.g. 30 for 'net 30' or 60 for 'net 60', or null if not clearly stated in contract or emails>,
+    "delivery_reliability_score": "<one-line plain-English assessment based on delivery history found in emails: 'Good — all shipments on time', 'Mixed — minor delays, within tolerance', or 'Poor — repeated delays or unresolved delivery issue'. Use null if emails contain no delivery history.>"
   }}
 }}
 
@@ -229,6 +237,10 @@ Rules:
 - Spec change proposed in email but no signed change order = spec_change_dispute issue.
 - If price unit in email is ambiguous, set latest_price_quoted.value to null and add it as a price_discrepancy issue.
 - contract_base_price_numeric: extract only if the contract has a single unambiguous numeric base price in a consistent unit. Otherwise null.
+- financial_signals.contract_currency: derive from the currency symbol in contract pricing (₪→ILS, $→USD, €→EUR, PLN→PLN). If multiple currencies appear, use the one in the contract's base price clause.
+- financial_signals.early_payment_discount_rate/days: look for phrases like "2.5% discount if paid within 10 days", "2%/10 net 30", or similar. Set both or neither.
+- financial_signals.net_payment_days: extract from "net 30", "net 60", "payment within 30 days" etc. If emails show a supplier requesting different terms than the contract, use the contracted terms.
+- financial_signals.delivery_reliability_score: base only on explicit shipment events in emails (dispatch dates, arrival dates, delay mentions). Do not infer from tone.
 - Return only valid JSON."""
 
 

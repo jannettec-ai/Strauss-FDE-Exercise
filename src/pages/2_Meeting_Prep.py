@@ -222,6 +222,31 @@ with st.sidebar:
                     packet = run_packet(mid)
                     duration = time.time() - t_start
                     st.session_state.packets[mid] = packet
+                    # ── Financial context for financial_decisions page ──
+                    _sig = packet.get("financial_signals", {})
+                    _fallback_currency = {
+                        "Ivoire Cacao Export": "USD", "Golden Coast Cocoa Traders": "USD",
+                        "Lowlands Dairy Co-op": "EUR", "Galil Dairy Suppliers": "ILS",
+                        "Cana Doce Açúcar": "USD", "Siam Sugar Partners": "USD",
+                        "Sierra Verde Coffee Cooperative": "USD", "EuroPack Solutions": "PLN",
+                    }
+                    _currency = _sig.get("contract_currency") or _fallback_currency.get(packet["supplier_name"], "USD")
+                    st.session_state.financial_context = {
+                        "supplier_name": packet["supplier_name"],
+                        "supplier_num": packet["supplier_num"],
+                        "meeting_date": packet["meeting_date"],
+                        "contract_currency": _currency,
+                        "contract_value_foreign": None,
+                        "early_payment_discount_rate": _sig.get("early_payment_discount_rate"),
+                        "early_payment_discount_days": _sig.get("early_payment_discount_days"),
+                        "net_payment_days": _sig.get("net_payment_days"),
+                        "delivery_reliability_score": _sig.get("delivery_reliability_score"),
+                        "flags": {
+                            "fx_exposure": _currency != "ILS",
+                            "early_payment_discount": _sig.get("early_payment_discount_rate") is not None,
+                            "net_60_request": (_sig.get("net_payment_days") or 0) >= 60,
+                        },
+                    }
                     if mid not in st.session_state.corrections:
                         st.session_state.corrections[mid] = {}
                     price_delta = packet.get("price_delta")
@@ -567,6 +592,24 @@ with right:
 
     if signals_shown == 0:
         st.caption("Live market data unavailable — check network or reload.")
+
+# ── Financial implications button ────────────────────────────────────────────
+
+_fc = st.session_state.get("financial_context", {})
+if _fc.get("flags") and any(_fc["flags"].values()):
+    st.divider()
+    _active_flags = [k for k, v in _fc["flags"].items() if v]
+    _flag_labels = {
+        "fx_exposure": "FX exposure",
+        "early_payment_discount": "early payment discount",
+        "net_60_request": "net 60 request",
+    }
+    _flag_str = " · ".join(_flag_labels[f] for f in _active_flags)
+    st.caption(f"Financial flags detected: {_flag_str}")
+    col_fin, _ = st.columns([2, 3])
+    with col_fin:
+        if st.button("💡 Explore financial implications", type="primary", use_container_width=True):
+            st.switch_page("pages/financial_decisions.py")
 
 # ── Correction tracking ───────────────────────────────────────────────────────
 

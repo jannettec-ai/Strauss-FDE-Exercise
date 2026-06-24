@@ -24,14 +24,16 @@ def fetch_reference_data() -> dict:
     """
     Returns:
         {
-          "fx_rates":             DataFrame,
-          "commodity_benchmarks": DataFrame,
-          "lending_rates":        DataFrame,
+          "fx_rates":             DataFrame  — latest close per currency pair
+          "fx_trends":            DataFrame  — 30-day daily series per currency pair
+          "commodity_benchmarks": DataFrame  — live spot prices
+          "lending_rates":        DataFrame  — BOI prime, SOFR, EURIBOR
         }
     """
     fx_df = _fetch_fx_rates()
     return {
         "fx_rates":             fx_df,
+        "fx_trends":            _fetch_fx_trends(),
         "commodity_benchmarks": _fetch_commodity_benchmarks(fx_df),
         "lending_rates":        _fetch_lending_rates(),
     }
@@ -76,6 +78,39 @@ def _fetch_fx_rates() -> pd.DataFrame:
     except Exception as e:
         print(f"[data_fetcher] _fetch_fx_rates failed: {e}", file=sys.stderr)
         return pd.DataFrame(columns=_FX_COLS)
+
+
+# ── FX 30-day Trends ──────────────────────────────────────────────────────────
+
+_FX_TRENDS_COLS = ["currency_pair", "date", "rate"]
+
+
+def _fetch_fx_trends() -> pd.DataFrame:
+    """30-day daily FX series for all tracked pairs. Used for trend charts."""
+    try:
+        frames = []
+        for ticker, label in _FX_TICKERS.items():
+            try:
+                df = yf.download(ticker, period="1mo", auto_adjust=True, progress=False)
+                if df.empty:
+                    continue
+                close = df["Close"]
+                if isinstance(close, pd.DataFrame):
+                    close = close.iloc[:, 0]
+                close = close.dropna().reset_index()
+                close.columns = ["date", "rate"]
+                close["currency_pair"] = label
+                close["date"] = close["date"].dt.date.astype(str)
+                close["rate"] = close["rate"].round(4)
+                frames.append(close[_FX_TRENDS_COLS])
+            except Exception as e:
+                print(f"[data_fetcher] FX trend {ticker} failed: {e}", file=sys.stderr)
+        if frames:
+            return pd.concat(frames, ignore_index=True)
+        return pd.DataFrame(columns=_FX_TRENDS_COLS)
+    except Exception as e:
+        print(f"[data_fetcher] _fetch_fx_trends failed: {e}", file=sys.stderr)
+        return pd.DataFrame(columns=_FX_TRENDS_COLS)
 
 
 # ── Commodity Benchmarks ───────────────────────────────────────────────────────
