@@ -13,6 +13,8 @@ import time
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+import pandas as pd
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import streamlit as st
@@ -473,6 +475,98 @@ with right:
         st.caption(packet.get("commodity_benchmark", ""))
     else:
         st.caption(packet.get("commodity_benchmark", "No benchmark in scope for this category."))
+
+    # ── Live Market Signals ───────────────────────────────────────────────────
+
+    _SUPPLIER_CURRENCY = {
+        "Ivoire Cacao Export":             "USD",
+        "Golden Coast Cocoa Traders":      "USD",
+        "Lowlands Dairy Co-op":            "EUR",
+        "Galil Dairy Suppliers":           "ILS",
+        "Cana Doce Açúcar":               "USD",
+        "Siam Sugar Partners":             "USD",
+        "Sierra Verde Coffee Cooperative": "USD",
+        "EuroPack Solutions":              "PLN",
+    }
+    _CATEGORY_TO_LIVE = {
+        "cocoa": "Cocoa",
+        "sugar": "Sugar (No. 11)",
+        "dairy": "Dairy (Class III Milk)",
+    }
+
+    rd = st.session_state.get("reference_data", {})
+    _fx  = rd.get("fx_rates",             pd.DataFrame())
+    _bm  = rd.get("commodity_benchmarks", pd.DataFrame())
+    _lr  = rd.get("lending_rates",        pd.DataFrame())
+
+    st.divider()
+    st.markdown(section_label("Live Market Signals"), unsafe_allow_html=True)
+
+    signals_shown = 0
+
+    # 1. Live commodity spot vs static benchmark
+    live_commodity = _CATEGORY_TO_LIVE.get(packet.get("category", ""))
+    if live_commodity and not _bm.empty:
+        bm_row = _bm[_bm["commodity"] == live_commodity]
+        if not bm_row.empty:
+            live_price = bm_row.iloc[0]["price_usd"]
+            live_unit  = bm_row.iloc[0]["unit"]
+            live_date  = bm_row.iloc[0]["as_of_date"]
+            st.markdown(f"**Live {live_commodity} spot**")
+            st.markdown(
+                f"{live_price:,.2f} {live_unit} · as of {live_date}"
+            )
+            # Show drift vs static benchmark (last CSV row)
+            if bm and bm.get("current_price"):
+                static_price = bm["current_price"]
+                drift_pct = round((live_price - static_price) / static_price * 100, 1) if static_price else None
+                if drift_pct is not None and abs(drift_pct) >= 0.5:
+                    arrow = "▲" if drift_pct > 0 else "▼"
+                    color = "#c8102e" if drift_pct > 0 else "#16a34a"
+                    st.markdown(
+                        f"<span style='color:{color};font-size:0.82rem;font-weight:600'>"
+                        f"{arrow} {abs(drift_pct)}% vs last benchmark snapshot</span>",
+                        unsafe_allow_html=True,
+                    )
+                    if drift_pct > 5:
+                        st.caption("Market has moved up materially since benchmark was last pulled — supplier may reference spot in negotiation.")
+                    elif drift_pct < -5:
+                        st.caption("Market has softened since benchmark was last pulled — use this in negotiation if discussing pricing.")
+            signals_shown += 1
+
+    # 2. FX rate for this supplier's invoice currency
+    supplier_currency = _SUPPLIER_CURRENCY.get(packet.get("supplier_name", ""), "USD")
+    if not _fx.empty:
+        if supplier_currency == "ILS":
+            st.markdown("**FX Exposure:** None — supplier invoices in ILS")
+        else:
+            pair = f"{supplier_currency}/ILS"
+            fx_row = _fx[_fx["currency_pair"] == pair]
+            if not fx_row.empty:
+                rate   = fx_row.iloc[0]["rate"]
+                as_of  = fx_row.iloc[0]["as_of_date"]
+                st.markdown(f"**{pair}:** {rate:.4f}  ·  as of {as_of}")
+                st.caption(f"Supplier invoices in {supplier_currency}. Each 1% move in this rate shifts your ILS cost by 1%.")
+        signals_shown += 1
+
+    # 3. Cost of capital (always relevant for payment term discussions)
+    if not _lr.empty:
+        boi_row = _lr[_lr["rate_type"] == "Prime Rate"]
+        if not boi_row.empty:
+            boi_rate = float(boi_row.iloc[0]["rate_pct"])
+            boi_src  = boi_row.iloc[0]["source"]
+            src_ok   = "fallback" not in boi_src
+            src_label = "BOI API" if src_ok else "fallback estimate"
+            st.markdown(f"**BOI Prime Rate:** {boi_rate:.2f}%  ·  {src_label}")
+            st.caption(
+                "Your ILS cost of capital. An early payment discount is financially "
+                f"rational if its implied APR exceeds {boi_rate:.2f}%. "
+                "See Market Intel → Cost of Money for full analysis."
+            )
+            signals_shown += 1
+
+    if signals_shown == 0:
+        st.caption("Live market data unavailable — check network or reload.")
 
 # ── Correction tracking ───────────────────────────────────────────────────────
 
