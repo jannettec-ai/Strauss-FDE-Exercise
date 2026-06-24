@@ -247,14 +247,23 @@ Rules:
 def _call_claude(prompt: str, client: anthropic.Anthropic) -> dict:
     response = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=2000,
+        max_tokens=4096,
         messages=[{"role": "user", "content": prompt}],
     )
     raw = response.content[0].text.strip()
     # strip accidental markdown fences
     raw = re.sub(r"^```[a-z]*\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
-    return json.loads(raw)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        # Surface truncation clearly: stop_reason tells us if we hit the limit
+        stop = response.stop_reason
+        raise ValueError(
+            f"Claude response is not valid JSON (stop_reason={stop!r}). "
+            f"JSON error: {e}. "
+            f"Last 200 chars of response: {raw[-200:]!r}"
+        ) from e
 
 
 # ── Public entry point ────────────────────────────────────────────────────
