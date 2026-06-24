@@ -25,7 +25,7 @@ if "ANTHROPIC_API_KEY" in st.secrets:
 
 from utils.metrics import record_generation, update_correction_rate
 
-from packet_generator import get_upcoming_meetings, run_packet
+from packet_generator import get_upcoming_meetings, run_packet, load_cached_packet
 
 # ── Session state ─────────────────────────────────────────────────────────────
 
@@ -190,6 +190,38 @@ def save_correction_log(meeting_id, supplier_name, corrections, generated_at):
                 "packet_generated_at": generated_at,
             })
 
+_FALLBACK_CURRENCY = {
+    "Ivoire Cacao Export": "USD", "Golden Coast Cocoa Traders": "USD",
+    "Lowlands Dairy Co-op": "EUR", "Galil Dairy Suppliers": "ILS",
+    "Cana Doce Açúcar": "USD", "Siam Sugar Partners": "USD",
+    "Sierra Verde Coffee Cooperative": "USD", "EuroPack Solutions": "PLN",
+}
+
+
+def _apply_financial_context(packet: dict, mid: int) -> None:
+    """Set st.session_state.financial_context from a packet (works for cache or fresh)."""
+    _sig = packet.get("financial_signals", {})
+    _currency = _sig.get("contract_currency") or _FALLBACK_CURRENCY.get(packet["supplier_name"], "USD")
+    st.session_state.financial_context = {
+        "supplier_name": packet["supplier_name"],
+        "supplier_num": packet["supplier_num"],
+        "meeting_date": packet["meeting_date"],
+        "contract_currency": _currency,
+        "contract_value_foreign": None,
+        "early_payment_discount_rate": _sig.get("early_payment_discount_rate"),
+        "early_payment_discount_days": _sig.get("early_payment_discount_days"),
+        "net_payment_days": _sig.get("net_payment_days"),
+        "delivery_reliability_score": _sig.get("delivery_reliability_score"),
+        "flags": {
+            "fx_exposure": _currency != "ILS",
+            "early_payment_discount": _sig.get("early_payment_discount_rate") is not None,
+            "net_60_request": (_sig.get("net_payment_days") or 0) >= 60,
+        },
+    }
+    if mid not in st.session_state.corrections:
+        st.session_state.corrections[mid] = {}
+
+
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 
 with st.sidebar:
@@ -213,56 +245,58 @@ with st.sidebar:
     st.divider()
     if st.session_state.selected_id:
         sel = next(m for m in meetings if m["meeting_id"] == st.session_state.selected_id)
+        mid = sel["meeting_id"]
         st.markdown(f"**Selected:** {sel['supplier']}  \n{sel['date']}")
-        if st.button("⚡ Generate Packet", type="primary", use_container_width=True):
-            mid = st.session_state.selected_id
-            with st.spinner("Extracting supplier data and generating packet…"):
-                try:
-                    t_start = time.time()
-                    packet = run_packet(mid)
-                    duration = time.time() - t_start
-                    st.session_state.packets[mid] = packet
-                    # ── Financial context for financial_decisions page ──
-                    _sig = packet.get("financial_signals", {})
-                    _fallback_currency = {
-                        "Ivoire Cacao Export": "USD", "Golden Coast Cocoa Traders": "USD",
-                        "Lowlands Dairy Co-op": "EUR", "Galil Dairy Suppliers": "ILS",
-                        "Cana Doce Açúcar": "USD", "Siam Sugar Partners": "USD",
-                        "Sierra Verde Coffee Cooperative": "USD", "EuroPack Solutions": "PLN",
-                    }
-                    _currency = _sig.get("contract_currency") or _fallback_currency.get(packet["supplier_name"], "USD")
-                    st.session_state.financial_context = {
-                        "supplier_name": packet["supplier_name"],
-                        "supplier_num": packet["supplier_num"],
-                        "meeting_date": packet["meeting_date"],
-                        "contract_currency": _currency,
-                        "contract_value_foreign": None,
-                        "early_payment_discount_rate": _sig.get("early_payment_discount_rate"),
-                        "early_payment_discount_days": _sig.get("early_payment_discount_days"),
-                        "net_payment_days": _sig.get("net_payment_days"),
-                        "delivery_reliability_score": _sig.get("delivery_reliability_score"),
-                        "flags": {
-                            "fx_exposure": _currency != "ILS",
-                            "early_payment_discount": _sig.get("early_payment_discount_rate") is not None,
-                            "net_60_request": (_sig.get("net_payment_days") or 0) >= 60,
-                        },
-                    }
-                    if mid not in st.session_state.corrections:
-                        st.session_state.corrections[mid] = {}
-                    price_delta = packet.get("price_delta")
-                    record_generation(
-                        supplier_name=packet["supplier_name"],
-                        duration_seconds=duration,
-                        packet_length_chars=len(str(packet)),
-                        meeting_id=mid,
-                        category=packet.get("category"),
-                        kpi_response_days=packet.get("avg_response_days"),
-                        kpi_open_issues=packet.get("open_issues_count"),
-                        kpi_price_delta_pct=price_delta["pct"] if price_delta else None,
-                        kpi_days_to_renewal=packet.get("days_to_renewal"),
-                    )
-                except Exception as e:
-                    st.error(f"Generation failed: {e}")
+
+        _force = st.session_state.pop(f"force_{mid}", False)
+        _btn = st.button("⚡ Generate Packet", type="primary", use_container_width=True)
+
+        if _btn or _force:
+            # ── Cache hit: load instantly, no Claude call ──────────────────
+            if not _force:
+                _cached = load_cached_packet(mid)
+                if _cached:
+                    st.session_state.packets[mid] = _cached
+                    _apply_financial_context(_cached, mid)
+
+            # ── Fresh generation with streaming progress ───────────────────
+            if not st.session_state.packets.get(mid):
+                with st.status(f"Extracting {sel['supplier']}…", expanded=True) as _status:
+                    _token_el = st.empty()
+                    _tick = [0]
+
+                    def _on_token(n: int) -> None:
+                        if n - _tick[0] >= 100:
+                            _token_el.caption(f"🤖 Writing… {n:,} chars")
+                            _tick[0] = n
+
+                    try:
+                        t_start = time.time()
+                        packet = run_packet(mid, on_token=_on_token)
+                        duration = time.time() - t_start
+                        _token_el.empty()
+                        _status.update(
+                            label=f"✅ Done in {duration:.1f}s",
+                            state="complete",
+                            expanded=False,
+                        )
+                        st.session_state.packets[mid] = packet
+                        _apply_financial_context(packet, mid)
+                        price_delta = packet.get("price_delta")
+                        record_generation(
+                            supplier_name=packet["supplier_name"],
+                            duration_seconds=duration,
+                            packet_length_chars=len(str(packet)),
+                            meeting_id=mid,
+                            category=packet.get("category"),
+                            kpi_response_days=packet.get("avg_response_days"),
+                            kpi_open_issues=packet.get("open_issues_count"),
+                            kpi_price_delta_pct=price_delta["pct"] if price_delta else None,
+                            kpi_days_to_renewal=packet.get("days_to_renewal"),
+                        )
+                    except Exception as e:
+                        _status.update(label="❌ Generation failed", state="error")
+                        st.error(f"Generation failed: {e}")
     else:
         st.info("Select a meeting above, then click Generate.")
 
@@ -285,6 +319,19 @@ if packet is None:
     st.stop()
 
 # ── Render packet ─────────────────────────────────────────────────────────────
+
+# Cache banner — shown when packet was served from disk cache
+if packet.get("_from_cache"):
+    _age_h = packet.get("_cache_age_hours", 0)
+    _age_str = "just now" if _age_h < 0.1 else f"{_age_h:.0f}h ago"
+    _cb1, _cb2 = st.columns([5, 1])
+    with _cb1:
+        st.info(f"📦 Loaded from cache — generated {_age_str}. Reflects data as of that time.")
+    with _cb2:
+        if st.button("🔄 Refresh", key=f"regen_{mid}"):
+            st.session_state[f"force_{mid}"] = True
+            del st.session_state.packets[mid]
+            st.rerun()
 
 # Fire dialog at the TOP LEVEL (before any columns) so it always works.
 # Uses a counter so it fires once per button click and stays closed after dismiss.

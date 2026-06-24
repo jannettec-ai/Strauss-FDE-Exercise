@@ -244,31 +244,37 @@ Rules:
 - Return only valid JSON."""
 
 
-def _call_claude(prompt: str, client: anthropic.Anthropic) -> dict:
-    response = client.messages.create(
+def _call_claude(prompt: str, client: anthropic.Anthropic, on_token=None) -> dict:
+    chunks = []
+    n_chars = 0
+    with client.messages.stream(
         model="claude-sonnet-4-6",
         max_tokens=4096,
         messages=[{"role": "user", "content": prompt}],
-    )
-    raw = response.content[0].text.strip()
-    # strip accidental markdown fences
+    ) as stream:
+        for text in stream.text_stream:
+            chunks.append(text)
+            n_chars += len(text)
+            if on_token:
+                on_token(n_chars)
+        final_msg = stream.get_final_message()
+
+    raw = "".join(chunks).strip()
     raw = re.sub(r"^```[a-z]*\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
     try:
         return json.loads(raw)
     except json.JSONDecodeError as e:
-        # Surface truncation clearly: stop_reason tells us if we hit the limit
-        stop = response.stop_reason
         raise ValueError(
-            f"Claude response is not valid JSON (stop_reason={stop!r}). "
+            f"Claude response is not valid JSON (stop_reason={final_msg.stop_reason!r}). "
             f"JSON error: {e}. "
-            f"Last 200 chars of response: {raw[-200:]!r}"
+            f"Last 200 chars: {raw[-200:]!r}"
         ) from e
 
 
 # ── Public entry point ────────────────────────────────────────────────────
 
-def run_extraction(supplier_num: str) -> dict:
+def run_extraction(supplier_num: str, on_token=None) -> dict:
     """
     Full extraction pass for one supplier.
 
@@ -297,7 +303,7 @@ def run_extraction(supplier_num: str) -> dict:
 
     # Claude extraction
     prompt = _build_prompt(supplier_num, supplier_name, emails, contracts, price_data)
-    extracted = _call_claude(prompt, client)
+    extracted = _call_claude(prompt, client, on_token=on_token)
 
     # Local KPI: days to renewal
     renewal_date_str = extracted.get("contract_terms", {}).get("renewal_date")

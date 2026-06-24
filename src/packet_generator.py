@@ -16,6 +16,7 @@ All display formatting happens in app.py; this module returns raw values.
 """
 
 import csv
+import json as _json
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Optional
@@ -60,6 +61,44 @@ BENCHMARK_META = {
         ),
     },
 }
+
+# ── Packet cache (24-hour disk cache to skip repeated Claude calls) ───────────
+
+CACHE_DIR = ROOT / "data" / "packet_cache"
+CACHE_TTL_HOURS = 24
+
+
+def _cache_path(meeting_id: int) -> Path:
+    return CACHE_DIR / f"meeting_{meeting_id}.json"
+
+
+def load_cached_packet(meeting_id: int) -> dict | None:
+    """Return cached packet if it exists and is within TTL, else None."""
+    fp = _cache_path(meeting_id)
+    if not fp.exists():
+        return None
+    try:
+        data = _json.loads(fp.read_text(encoding="utf-8"))
+        generated_at = datetime.fromisoformat(data.get("generated_at", "").rstrip("Z"))
+        age_hours = (datetime.utcnow() - generated_at).total_seconds() / 3600
+        if age_hours > CACHE_TTL_HOURS:
+            return None
+        data["_from_cache"] = True
+        data["_cache_age_hours"] = round(age_hours, 1)
+        return data
+    except Exception:
+        return None
+
+
+def save_packet_cache(meeting_id: int, packet: dict) -> None:
+    """Persist packet to disk, stripping internal _ metadata keys."""
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cacheable = {k: v for k, v in packet.items() if not k.startswith("_")}
+    _cache_path(meeting_id).write_text(
+        _json.dumps(cacheable, default=str, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
 
 # ── Calendar loading ──────────────────────────────────────────────────────────
 
@@ -165,7 +204,7 @@ def load_benchmark(category: str) -> Optional[dict]:
 
 # ── Packet assembly ───────────────────────────────────────────────────────────
 
-def run_packet(meeting_id: int) -> dict:
+def run_packet(meeting_id: int, on_token=None) -> dict:
     """
     Generate the full negotiation prep packet for a given meeting ID.
 
@@ -190,7 +229,7 @@ def run_packet(meeting_id: int) -> dict:
         )
 
     # Run Claude extraction (the heavy step)
-    extraction = run_extraction(supplier_num)
+    extraction = run_extraction(supplier_num, on_token=on_token)
 
     # Load raw documents for source viewer
     raw_emails = load_emails(supplier_num)
@@ -205,7 +244,7 @@ def run_packet(meeting_id: int) -> dict:
     # open_issues, commodity_benchmark, heads_up, field_sources,
     # financial_signals (contract_currency, early_payment_discount_rate/days,
     # net_payment_days, delivery_reliability_score). See extraction.py prompt.
-    return {
+    packet = {
         # ── Meeting context ──────────────────────────────────────────────
         "meeting_id": meeting_id,
         "meeting_date": meeting["date"],           # string YYYY-MM-DD
@@ -243,6 +282,8 @@ def run_packet(meeting_id: int) -> dict:
         # ── Meta ─────────────────────────────────────────────────────────
         "generated_at": datetime.utcnow().isoformat() + "Z",
     }
+    save_packet_cache(meeting_id, packet)
+    return packet
 
 
 # ── CLI smoke-test ────────────────────────────────────────────────────────────
