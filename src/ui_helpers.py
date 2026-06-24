@@ -325,11 +325,18 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   padding: 0;
 }
 
+/* ── Column flex fix: prevents columns from overflowing their allocation ── */
+[data-testid="column"] {
+  min-width: 0 !important;
+  overflow-x: hidden !important;
+}
+
 /* ── Markdown content containers: prevent heading bleed and overflow ── */
 [data-testid="stMarkdownContainer"] {
   overflow-wrap: break-word !important;
   word-break: break-word !important;
-  overflow: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 [data-testid="stMarkdownContainer"] h1 {
   font-size: 1.05rem !important;
@@ -367,6 +374,37 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
 [data-testid="stMarkdownContainer"] li {
   margin-bottom: 0.15rem !important;
   line-height: 1.5 !important;
+}
+
+/* ── Metric tile overrides (must come AFTER stMarkdownContainer rules) ── */
+/* Restores metric values in case stMarkdownContainer p rule hits them   */
+[data-testid="stMetricValue"],
+[data-testid="stMetricValue"] p,
+[data-testid="stMetricValue"] div,
+[data-testid="stMetricValue"] [data-testid="stMarkdownContainer"] p {
+  font-size: 1.8rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  line-height: 1.1 !important;
+  margin: 0 !important;
+}
+[data-testid="stMetricLabel"],
+[data-testid="stMetricLabel"] p,
+[data-testid="stMetricLabel"] [data-testid="stMarkdownContainer"] p {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: #64748b !important;
+  line-height: 1.3 !important;
+  margin: 0 !important;
+}
+[data-testid="stMetricDelta"],
+[data-testid="stMetricDelta"] p,
+[data-testid="stMetricDelta"] [data-testid="stMarkdownContainer"] p {
+  font-size: 0.82rem !important;
+  line-height: 1.3 !important;
+  margin: 0 !important;
 }
 
 .s-dir-card {
