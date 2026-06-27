@@ -72,6 +72,18 @@ html, body, [class*="css"] {
   padding-top: 2rem !important;
   padding-bottom: 3rem !important;
 }
+.main, .main p, .main div {
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+[data-testid="stCaptionContainer"] p,
+[data-testid="stCaptionContainer"] {
+  font-size: 0.82rem !important;
+  line-height: 1.55 !important;
+}
+[data-testid="stExpander"] summary {
+  font-size: 0.92rem !important;
+}
 
 /* ── Headings ── */
 h1 { font-size: 2.1rem !important; font-weight: 800 !important; color: #0f172a !important; letter-spacing: -0.03em !important; }
@@ -119,7 +131,7 @@ h3 { font-size: 1.15rem !important; font-weight: 600 !important; color: #1e293b 
   border: 1px solid #e2e8f0 !important;
 }
 [data-testid="stMetric"] label {
-  font-size: 0.72rem !important;
+  font-size: 0.78rem !important;
   font-weight: 600 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
@@ -193,7 +205,7 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   height: 100%;
 }
 .s-kpi-card .s-label {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
@@ -206,7 +218,7 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   line-height: 1.1;
 }
 .s-kpi-card .s-sub {
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   color: #94a3b8;
   margin-top: 0.1rem;
 }
@@ -236,7 +248,7 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   padding-top: 2px;
 }
 .s-meeting-card .s-date {
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #0f172a;
   white-space: nowrap;
@@ -245,16 +257,16 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
 .s-meeting-card .s-supplier {
   font-weight: 600;
   color: #0f172a;
-  font-size: 0.92rem;
+  font-size: 1rem;
 }
 .s-meeting-card .s-notes {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   color: #64748b;
   font-style: italic;
   margin-top: 1px;
 }
 .s-meeting-card .s-tag {
-  font-size: 0.73rem;
+  font-size: 0.8rem;
   color: #94a3b8;
   margin-top: 3px;
 }
@@ -283,10 +295,10 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   border-bottom: 1px solid #f1f5f9;
 }
 .s-health-row:last-child { border-bottom: none; }
-.s-health-row .s-name { font-weight: 600; color: #0f172a; font-size: 0.87rem; }
-.s-health-row .s-contract { font-size: 0.72rem; color: #64748b; margin-top: 1px; }
+.s-health-row .s-name { font-weight: 600; color: #0f172a; font-size: 0.95rem; }
+.s-health-row .s-contract { font-size: 0.8rem; color: #64748b; margin-top: 1px; }
 .s-health-row .s-info { flex: 1; min-width: 0; }
-.s-health-row .s-since { font-size: 0.72rem; color: #94a3b8; text-align: right; white-space: nowrap; }
+.s-health-row .s-since { font-size: 0.8rem; color: #94a3b8; text-align: right; white-space: nowrap; }
 .s-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 .s-dot-green  { background: #16a34a; }
 .s-dot-amber  { background: #ca8a04; }
@@ -303,20 +315,20 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   transition: box-shadow 0.2s ease;
 }
 .s-disc-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-.s-disc-card .s-supplier { font-weight: 700; color: #0f172a; font-size: 0.88rem; }
-.s-disc-card .s-sender { font-size: 0.75rem; color: #64748b; margin-top: 1px; }
+.s-disc-card .s-supplier { font-weight: 700; color: #0f172a; font-size: 0.95rem; }
+.s-disc-card .s-sender { font-size: 0.82rem; color: #64748b; margin-top: 1px; }
 .s-disc-card .s-subject {
-  font-size: 0.8rem; color: #334155; margin-top: 0.4rem;
+  font-size: 0.88rem; color: #334155; margin-top: 0.4rem;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .s-disc-card .s-preview {
-  font-size: 0.75rem; color: #94a3b8; margin-top: 0.35rem;
+  font-size: 0.82rem; color: #94a3b8; margin-top: 0.35rem;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .s-section-label {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -367,19 +379,19 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   margin: 0.4rem 0 0.25rem !important;
 }
 [data-testid="stMarkdownContainer"] p {
-  font-size: 0.88rem !important;
-  line-height: 1.6 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.65 !important;
   margin: 0.2rem 0 !important;
 }
 [data-testid="stMarkdownContainer"] ul,
 [data-testid="stMarkdownContainer"] ol {
-  font-size: 0.88rem !important;
+  font-size: 0.95rem !important;
   padding-left: 1.2rem !important;
   margin: 0.2rem 0 !important;
 }
 [data-testid="stMarkdownContainer"] li {
-  margin-bottom: 0.15rem !important;
-  line-height: 1.5 !important;
+  margin-bottom: 0.2rem !important;
+  line-height: 1.65 !important;
 }
 
 /* ── Metric tile overrides (must come AFTER stMarkdownContainer rules) ── */
@@ -397,7 +409,7 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
 [data-testid="stMetricLabel"],
 [data-testid="stMetricLabel"] p,
 [data-testid="stMetricLabel"] [data-testid="stMarkdownContainer"] p {
-  font-size: 0.72rem !important;
+  font-size: 0.78rem !important;
   font-weight: 600 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
