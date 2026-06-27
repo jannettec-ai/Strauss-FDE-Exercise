@@ -280,9 +280,11 @@ with st.sidebar:
 mid = st.session_state.selected_id
 packet = st.session_state.packets.get(mid) if mid else None
 
+_force_regen = st.session_state.pop(f"force_{mid}", False) if mid else False
+
 if packet is None and mid is not None:
-    # Meeting selected but no packet yet — try cache then generate
-    _cached = load_cached_packet(mid)
+    # Skip disk cache if user explicitly requested a refresh
+    _cached = None if _force_regen else load_cached_packet(mid)
     if _cached:
         st.session_state.packets[mid] = _cached
         _apply_financial_context(_cached, mid)
@@ -369,6 +371,10 @@ if packet.get("_from_cache"):
         st.info(f"📦 Loaded from cache — generated {_age_str}. Reflects data as of that time.")
     with _cb2:
         if st.button("🔄 Refresh", key=f"regen_{mid}"):
+            from packet_generator import CACHE_DIR
+            _cf = CACHE_DIR / f"meeting_{mid}.json"
+            if _cf.exists():
+                _cf.unlink()
             st.session_state[f"force_{mid}"] = True
             del st.session_state.packets[mid]
             st.rerun()
