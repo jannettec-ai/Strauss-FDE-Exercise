@@ -162,43 +162,41 @@ with left:
             st.caption(f"…and {len(meetings) - 6} more · use Meeting Prep to generate a packet")
 
 with right:
+    # ── Contract Renewals (next 60 days only) ────────────────────────────────
     st.markdown(
-        section_label("Contract Renewals", "All supplier contracts by renewal urgency."),
+        section_label("Contract Renewals — Next 60 Days", "Suppliers with contracts expired or renewing within 60 days."),
         unsafe_allow_html=True,
     )
 
-    expired, urgent, approaching, healthy = [], [], [], []
+    expired, urgent, approaching = [], [], []
     for s in summaries:
         c = s["contract"]
         rd = c.get("renewal_date")
         name = s["supplier_name"]
         status = c.get("status", "unknown")
 
-        if status in ("no_active_contract",) or (rd is None and status == "expired"):
-            expired.append((name, "No active contract", None))
+        if status == "no_active_contract" or (rd is None and status == "expired"):
+            expired.append((name, "No active contract"))
             continue
         if status == "draft":
-            expired.append((name, "Unsigned draft", None))
+            expired.append((name, "Unsigned draft"))
             continue
         if rd:
             try:
                 renewal = datetime.strptime(rd, "%Y-%m-%d").date()
                 days = (renewal - today).days
                 if days < 0:
-                    expired.append((name, f"Expired {abs(days)}d ago", days))
+                    expired.append((name, f"Expired {abs(days)}d ago"))
                 elif days <= 30:
-                    urgent.append((name, f"{days}d to renewal", days))
-                elif days <= 90:
-                    approaching.append((name, f"{days}d to renewal", days))
-                else:
-                    healthy.append((name, f"{days}d to renewal", days))
+                    urgent.append((name, f"{days}d to renewal"))
+                elif days <= 60:
+                    approaching.append((name, f"{days}d to renewal"))
+                # > 60 days: excluded
             except Exception:
-                healthy.append((name, rd, None))
-        else:
-            healthy.append((name, status.title(), None))
+                pass
 
     def renewal_row(name, note, color):
-        dot_colors = {"red": "#c8102e", "amber": "#f59e0b", "green": "#16a34a", "gray": "#94a3b8"}
+        dot_colors = {"red": "#c8102e", "amber": "#f59e0b"}
         return (
             f'<div style="display:flex;align-items:center;justify-content:space-between;'
             f'padding:0.5rem 0;border-bottom:1px solid #f1f5f9;">'
@@ -208,65 +206,60 @@ with right:
         )
 
     rows_html = ""
-    for name, note, _ in expired:
+    for name, note in expired:
         rows_html += renewal_row(name, note, "red")
-    for name, note, _ in urgent:
+    for name, note in urgent:
         rows_html += renewal_row(name, note, "amber")
-    for name, note, _ in approaching:
+    for name, note in approaching:
         rows_html += renewal_row(name, note, "amber")
-    for name, note, _ in healthy:
-        rows_html += renewal_row(name, note, "green")
 
     if rows_html:
         st.markdown(f'<div>{rows_html}</div>', unsafe_allow_html=True)
     else:
-        st.caption("No contract data available.")
+        st.caption("No contracts expiring within 60 days.")
 
-st.divider()
+    st.markdown("<div style='margin-top:1.5rem'></div>", unsafe_allow_html=True)
 
-# ── Supplier Health with context ──────────────────────────────────────────────
-
-st.markdown(
-    section_label("Supplier Health", "Combined score: relationship signals + contract status. Includes context on why each supplier is flagged."),
-    unsafe_allow_html=True,
-)
-
-HEALTH_COLOR = {"Healthy": "#16a34a", "Stable": "#ca8a04", "At risk": "#c8102e"}
-CONTRACT_LABEL = {
-    "active": "Active contract",
-    "expired": "Expired contract",
-    "draft": "Unsigned draft",
-    "no_active_contract": "No active contract",
-    "unknown": "Contract status unknown",
-}
-
-h_cols = st.columns(2, gap="large")
-for i, s in enumerate(summaries):
-    label   = s["combined_health_label"]
-    color   = HEALTH_COLOR.get(label, "#94a3b8")
-    days    = s["days_since_last_contact"]
-    contact = f"{days}d since last contact" if days is not None else "no email on file"
-    contract_ctx = CONTRACT_LABEL.get(s["contract"].get("status", "unknown"), "")
-    trend   = s.get("response_trend", {})
-    trend_note = ""
-    if trend.get("direction") == "slower":
-        trend_note = " · responses slowing"
-    elif trend.get("direction") == "faster":
-        trend_note = " · responses improving"
-
-    row_html = (
-        f'<div style="display:flex;align-items:flex-start;gap:0.75rem;'
-        f'padding:0.65rem 0;border-bottom:1px solid #f1f5f9;">'
-        f'<div style="width:10px;height:10px;border-radius:50%;background:{color};'
-        f'margin-top:0.35rem;flex-shrink:0;"></div>'
-        f'<div>'
-        f'<div style="font-size:1rem;font-weight:600;color:#0f172a;">{s["supplier_name"]}</div>'
-        f'<div style="font-size:0.85rem;color:#64748b;margin-top:0.15rem;">'
-        f'{contract_ctx} · {contact}{trend_note}</div>'
-        f'</div>'
-        f'</div>'
+    # ── Supplier Health ───────────────────────────────────────────────────────
+    st.markdown(
+        section_label("Supplier Health", "Combined score: relationship signals + contract status."),
+        unsafe_allow_html=True,
     )
-    with h_cols[i % 2]:
+
+    HEALTH_COLOR = {"Healthy": "#16a34a", "Stable": "#ca8a04", "At risk": "#c8102e"}
+    CONTRACT_LABEL = {
+        "active": "Active contract",
+        "expired": "Expired contract",
+        "draft": "Unsigned draft",
+        "no_active_contract": "No active contract",
+        "unknown": "Contract status unknown",
+    }
+
+    for s in summaries:
+        label   = s["combined_health_label"]
+        color   = HEALTH_COLOR.get(label, "#94a3b8")
+        days    = s["days_since_last_contact"]
+        contact = f"{days}d since contact" if days is not None else "no email on file"
+        contract_ctx = CONTRACT_LABEL.get(s["contract"].get("status", "unknown"), "")
+        trend   = s.get("response_trend", {})
+        trend_note = ""
+        if trend.get("direction") == "slower":
+            trend_note = " · slowing"
+        elif trend.get("direction") == "faster":
+            trend_note = " · improving"
+
+        row_html = (
+            f'<div style="display:flex;align-items:flex-start;gap:0.65rem;'
+            f'padding:0.55rem 0;border-bottom:1px solid #f1f5f9;">'
+            f'<div style="width:9px;height:9px;border-radius:50%;background:{color};'
+            f'margin-top:0.4rem;flex-shrink:0;"></div>'
+            f'<div>'
+            f'<div style="font-size:0.95rem;font-weight:600;color:#0f172a;">{s["supplier_name"]}</div>'
+            f'<div style="font-size:0.82rem;color:#64748b;margin-top:0.1rem;">'
+            f'{contract_ctx} · {contact}{trend_note}</div>'
+            f'</div>'
+            f'</div>'
+        )
         st.markdown(row_html, unsafe_allow_html=True)
 
 st.divider()
