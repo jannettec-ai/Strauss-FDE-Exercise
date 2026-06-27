@@ -482,34 +482,51 @@ _wl, _wr = st.columns([1, 1], gap="large")
 
 # Priority alert always in left; issues split evenly across both columns
 import math
+import re as _re
+
 _left_issues  = issues[:math.ceil(len(issues) / 2)]
 _right_issues = issues[math.ceil(len(issues) / 2):]
+
+
+def _resolve_source(src_ref: str) -> tuple[str, str | None]:
+    """
+    Return (doc_type, highlight_date).
+    If the source_ref contains an email date, open the email viewer at that date.
+    Only open the contract viewer when there is NO email date in the reference.
+    """
+    date_match = _re.search(r'\b(\d{4}-\d{2}-\d{2})\b', src_ref)
+    if date_match and "email" in src_ref.lower():
+        return "emails", date_match.group(1)
+    if any(w in src_ref.lower() for w in ("contract", "section", "clause")):
+        return "contract", None
+    return "emails", None
+
 
 with _wl:
     st.markdown(alert_card(packet["heads_up"], level=hu_level, title="Priority alert"), unsafe_allow_html=True)
     if fs.get("heads_up"):
-        doc_type = "contract" if "contract" in fs["heads_up"].lower() else "emails"
-        src_expander("src_headsup", packet, doc_type, fs["heads_up"])
+        _hu_type, _hu_hl = _resolve_source(fs["heads_up"])
+        src_expander("src_headsup", packet, _hu_type, fs["heads_up"], highlight=_hu_hl)
     if not issues:
         st.markdown(alert_card("No open issues identified.", level="success"), unsafe_allow_html=True)
     for i, issue in enumerate(_left_issues):
         cfg = ISSUE_CONFIG.get(issue["issue_type"], ("⚪", issue["issue_type"], "info"))
         icon, label, level = cfg
         src_ref = issue.get("source_ref", "")
-        doc_type = "contract" if any(w in src_ref.lower() for w in ("contract", "section", "clause")) else "email"
         st.markdown(alert_card(issue["description"], level=level, title=f"{icon} {label}"), unsafe_allow_html=True)
         if src_ref:
-            src_expander(f"src_issue_l{i}", packet, doc_type, src_ref)
+            _dt, _hl = _resolve_source(src_ref)
+            src_expander(f"src_issue_l{i}", packet, _dt, src_ref, highlight=_hl)
 
 with _wr:
     for i, issue in enumerate(_right_issues):
         cfg = ISSUE_CONFIG.get(issue["issue_type"], ("⚪", issue["issue_type"], "info"))
         icon, label, level = cfg
         src_ref = issue.get("source_ref", "")
-        doc_type = "contract" if any(w in src_ref.lower() for w in ("contract", "section", "clause")) else "email"
         st.markdown(alert_card(issue["description"], level=level, title=f"{icon} {label}"), unsafe_allow_html=True)
         if src_ref:
-            src_expander(f"src_issue_r{i}", packet, doc_type, src_ref)
+            _dt, _hl = _resolve_source(src_ref)
+            src_expander(f"src_issue_r{i}", packet, _dt, src_ref, highlight=_hl)
 
 st.divider()
 
