@@ -447,10 +447,7 @@ with k2:
               help="Unresolved issues found by AI extraction (metrics.md §2)")
 with k3:
     delta_label = price_delta_display(delta, lp)
-    delta_val = delta["pct"] if delta else None
     st.metric("Price vs Contract", delta_label,
-              delta=f"{delta_val:+.1f}%" if delta_val is not None else None,
-              delta_color="inverse",
               help="Latest email price vs contract base price (metrics.md §3)")
 with k4:
     d_renew, _ = renewal_status(packet["days_to_renewal"], ct.get("status", ""))
