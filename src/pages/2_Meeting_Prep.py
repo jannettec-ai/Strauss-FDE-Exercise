@@ -126,7 +126,24 @@ def _doc_dialog():
         except Exception as e:
             st.error(f"Could not load emails: {e}")
             return
-        st.caption(f"**{supplier_name}** · {len(emails)} emails · most recent first")
+
+        # Pin the referenced email at the top when a specific date is highlighted
+        if highlight:
+            hl_email = next((e for e in emails if e.get("date", "") == highlight), None)
+            if hl_email:
+                is_strauss_hl = "strauss-group.com" in hl_email.get("from", "")
+                direction_hl = "→ Strauss out" if is_strauss_hl else "← Supplier in"
+                st.markdown("**📌 Referenced email**")
+                with st.container(border=True):
+                    st.caption(
+                        f"**{hl_email.get('date','')}** · {direction_hl} · "
+                        f"_{hl_email.get('subject','')}_  \n"
+                        f"From: {hl_email.get('from','')}"
+                    )
+                    st.markdown(hl_email.get("body", ""))
+                st.divider()
+
+        st.caption(f"**{supplier_name}** · {len(emails)} emails · full thread, most recent first")
         st.divider()
         for email in reversed(emails):
             is_strauss = "strauss-group.com" in email.get("from", "")
@@ -137,13 +154,10 @@ def _doc_dialog():
                     f"**{email.get('date','')}** · {direction} · "
                     f"_{email.get('subject','')}_"
                 )
-                if is_hl:
+                label = "Read email (referenced above ↑)" if is_hl else "Read email"
+                with st.expander(label):
                     st.caption(f"From: {email.get('from','')}")
                     st.markdown(email.get("body", ""))
-                else:
-                    with st.expander("Read email"):
-                        st.caption(f"From: {email.get('from','')}")
-                        st.markdown(email.get("body", ""))
 
     elif doc_type == "contract":
         try:
@@ -598,6 +612,23 @@ with right:
         st.warning("Price unit in email is ambiguous. See open issues.")
     elif lp.get("display") is None:
         st.caption("No email price quote to compare.")
+
+    # Early payment discount — rendered if extracted from emails/contract
+    _sig = packet.get("financial_signals", {})
+    _epd_rate = _sig.get("early_payment_discount_rate")
+    _epd_days = _sig.get("early_payment_discount_days")
+    _net_days = _sig.get("net_payment_days")
+    if _epd_rate and _epd_days:
+        st.markdown(
+            alert_card(
+                f"**{_epd_rate * 100:.1f}%** discount if paid within {_epd_days} days "
+                f"(standard: net {_net_days or '—'} days). "
+                f"See Market Intel → Cost of Money to evaluate whether to take it.",
+                level="info",
+                title="💳 Early payment discount",
+            ),
+            unsafe_allow_html=True,
+        )
 
     st.divider()
     st.markdown(section_label("Commodity Benchmark"), unsafe_allow_html=True)
