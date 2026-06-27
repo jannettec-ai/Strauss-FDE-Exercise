@@ -129,7 +129,7 @@ if st.session_state.selected_supplier is None:
         for col, s in zip(row_cols, filtered[i:i+2]):
             with col:
                 contract = s["contract"]
-                health_label = s["health_label"]
+                health_label = s["combined_health_label"]
                 contract_badge_str = CONTRACT_BADGE.get(contract["status"], "⚪")
 
                 next_mtg = next(
@@ -190,9 +190,9 @@ else:
         st.title(s["supplier_name"])
         st.caption(f"📍 {s['geography']}  ·  🏷 {s['category'].title()}  ·  Supplier #{num}")
     with col_badge:
-        health_icon = HEALTH_BADGE.get(s["health_label"], "⚪")
+        health_icon = HEALTH_BADGE.get(s["combined_health_label"], "⚪")
         contract_badge_str = CONTRACT_BADGE.get(contract["status"], "⚪")
-        st.metric("Relationship", f"{health_icon} {s['health_label']}")
+        st.metric("Relationship", f"{health_icon} {s['combined_health_label']}")
         st.caption(f"Contract: {contract_badge_str}")
 
     # Upcoming meetings for this supplier
@@ -299,13 +299,13 @@ else:
         st.divider()
 
         st.markdown(section_label("Retention Signal"), unsafe_allow_html=True)
-        health = s["health_label"]
+        health = s["combined_health_label"]
         health_icon = HEALTH_BADGE.get(health, "⚪")
 
         if health == "Healthy":
             st.success(
-                f"{health_icon} **{health}** — Communication frequency and response time "
-                "are stable or improving. Relationship shows no early warning signs."
+                f"{health_icon} **{health}** — Communication frequency, response time, "
+                "and contract status are all in good standing. No early warning signs."
             )
         elif health == "Stable":
             st.info(
@@ -315,8 +315,8 @@ else:
         else:
             st.warning(
                 f"{health_icon} **{health}** — One or more signals (slower responses, "
-                "declining email frequency, or extended silence) suggest the relationship "
-                "may be cooling. Prioritise relationship maintenance in the next meeting."
+                "declining email frequency, or contract issues) suggest this relationship "
+                "needs attention. Prioritise in the next meeting."
             )
 
     with right:
