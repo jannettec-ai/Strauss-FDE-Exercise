@@ -441,8 +441,8 @@ if packet["meeting_notes"]:
 
 st.divider()
 
-# ── KPI row ───────────────────────────────────────────────────────────────────
-k1, k2, k3, k4 = st.columns(4)
+# ── Row 1: Relationship KPIs ──────────────────────────────────────────────────
+k1, k2, k3 = st.columns(3)
 with k1:
     avg_r = packet["avg_response_days"]
     st.metric("Avg Response Time", f"{avg_r}d" if avg_r is not None else "—",
@@ -451,22 +451,104 @@ with k2:
     st.metric("Open Issues", str(packet["open_issues_count"]),
               help="Unresolved issues found by AI extraction (metrics.md §2)")
 with k3:
-    delta_label = price_delta_display(delta, lp)
-    st.metric("Price vs Contract", delta_label,
-              help="Latest email price vs contract base price (metrics.md §3)")
-with k4:
     d_renew, _ = renewal_status(packet["days_to_renewal"], ct.get("status", ""))
     st.metric("Days to Renewal", d_renew,
               help="Days from today to contract renewal date (metrics.md §4)")
 
+st.markdown("<div style='margin-top:0.75rem'></div>", unsafe_allow_html=True)
+
+# ── Row 2: Financial KPIs ─────────────────────────────────────────────────────
+f1, f2, f3, f4 = st.columns(4)
+with f1:
+    base = ct.get("contract_base_price", "—")
+    st.metric("Contract Base Price", base,
+              help="Agreed base price from the signed contract")
+with f2:
+    st.metric("Latest Quoted Price", lp.get("display", "—") if lp.get("display") else "—",
+              help="Most recent price quoted by supplier in email thread")
+with f3:
+    delta_label = price_delta_display(delta, lp)
+    st.metric("Price vs Contract", delta_label,
+              help="Latest email price vs contract base price (metrics.md §3)")
+with f4:
+    if bm:
+        chg = bm.get("six_month_change_pct")
+        arrow = "▲" if chg and chg > 0 else ("▼" if chg and chg < 0 else "")
+        chg_str = f"{chg:+.1f}%" if chg is not None else ""
+        bm_val = f"{bm['current_price']} {bm.get('unit','')}"
+        st.metric("Market Benchmark", bm_val,
+                  delta=f"{arrow} {chg_str} (6 months)" if chg_str else None,
+                  delta_color="inverse",
+                  help="Live commodity benchmark price and 6-month trend direction")
+    else:
+        st.metric("Market Benchmark", "—", help="No benchmark data for this category")
+
 st.divider()
 
-# ── Negotiation Brief ─────────────────────────────────────────────────────────
+# ── Negotiation Brief + Recommendations ───────────────────────────────────────
 nb = packet.get("negotiation_brief", "")
 if nb:
     st.markdown(brief_card(nb), unsafe_allow_html=True)
 else:
     st.markdown(brief_card("Negotiation brief not available — click 🔄 Refresh to regenerate with AI insights."), unsafe_allow_html=True)
+
+# ── Key Actions (derived from structured data, no API call) ───────────────────
+_sig_rec = packet.get("financial_signals") or {}
+_epd_rate_rec = _sig_rec.get("early_payment_discount_rate")
+_epd_days_rec = _sig_rec.get("early_payment_discount_days")
+_net_days_rec  = _sig_rec.get("net_payment_days")
+
+_recommendations = []
+
+# Contract expired or missing
+if ct.get("status") in ("expired", "no_active_contract"):
+    _recommendations.append(("🔴", "Execute contract renewal before placing the next order — you are currently operating without a signed agreement."))
+
+# Price above contract without amendment
+if delta and delta["absolute"] > 0:
+    _recommendations.append(("🟠", f"Request a formal written price amendment — the quoted {lp.get('display','price')} exceeds the contract base without documentation."))
+
+# Early payment discount worth taking
+if _epd_rate_rec and _epd_days_rec and _net_days_rec:
+    _diff_rec = _net_days_rec - _epd_days_rec
+    _apr_rec = round((_epd_rate_rec / (1 - _epd_rate_rec)) * (365 / _diff_rec) * 100, 1) if _diff_rec > 0 else None
+    _rd_rec = st.session_state.get("reference_data", {})
+    _lr_rec = _rd_rec.get("lending_rates", pd.DataFrame())
+    _boi_rec = None
+    if not _lr_rec.empty:
+        _boi_row_r = _lr_rec[_lr_rec["rate_type"] == "Prime Rate"]
+        if not _boi_row_r.empty:
+            _boi_rec = float(_boi_row_r.iloc[0]["rate_pct"])
+    if _apr_rec and _boi_rec and (_apr_rec - _boi_rec) > 0:
+        _recommendations.append(("✅", f"Take the early payment discount — {_epd_rate_rec*100:.1f}% within {_epd_days_rec} days yields {_apr_rec:.1f}% APR vs your {_boi_rec:.1f}% cost of capital."))
+
+# Delivery disputes
+_delivery = [i for i in issues if i["issue_type"] == "delivery_dispute"]
+if _delivery:
+    _recommendations.append(("🟠", f"Confirm resolution of {len(_delivery)} open delivery dispute{'s' if len(_delivery) > 1 else ''} — verify any credits or penalties have been applied to invoices."))
+
+# Unanswered threads
+_unanswered = [i for i in issues if i["issue_type"] == "unanswered_thread"]
+if _unanswered:
+    _recommendations.append(("🟡", f"Follow up on {len(_unanswered)} unanswered thread{'s' if len(_unanswered) > 1 else ''} — get written confirmation before closing the meeting."))
+
+if _recommendations:
+    st.markdown(
+        '<div style="margin-top:0.85rem;padding:1rem 1.1rem;background:#f8fafc;'
+        'border-radius:10px;border:1px solid #e2e8f0;">'
+        '<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;'
+        'letter-spacing:0.08em;color:#64748b;margin-bottom:0.6rem;">Key Actions</div>'
+        + "".join(
+            f'<div style="display:flex;gap:0.6rem;margin-bottom:0.45rem;align-items:flex-start;">'
+            f'<span style="font-size:1rem;flex-shrink:0;margin-top:0.05rem;">{icon}</span>'
+            f'<span style="font-size:0.95rem;color:#1e293b;line-height:1.5;">{text}</span>'
+            f'</div>'
+            for icon, text in _recommendations
+        )
+        + '</div>',
+        unsafe_allow_html=True,
+    )
+
 st.divider()
 
 # ── Watch for Today ───────────────────────────────────────────────────────────
@@ -603,7 +685,6 @@ with left:
 
 with right:
     st.markdown(section_label("Pricing", "Contract base price vs. the most recent price quoted in supplier emails. Delta flags any informal increase not backed by a written amendment."), unsafe_allow_html=True)
-    st.markdown(f"**Contract base price:** {ct.get('contract_base_price', '—')}")
 
     if lp.get("display"):
         st.markdown(
@@ -616,21 +697,12 @@ with right:
     else:
         st.markdown("**Latest quote:** No price quoted in email thread")
 
-    if delta:
-        sign = "+" if delta["absolute"] >= 0 else ""
-        direction = "above" if delta["absolute"] > 0 else "below"
-        st.markdown(
-            f"**Delta:** {sign}{delta['absolute']:.2f} {lp.get('unit', '')} "
-            f"({sign}{delta['pct']}%) — quote is {direction} contract price"
-        )
-        if delta["absolute"] > 0:
-            st.error("Quote exceeds contract price. Verify written amendment exists before agreeing.")
-        elif delta["absolute"] == 0:
-            st.success("In line with contract price.")
+    if delta and delta["absolute"] > 0:
+        st.error("Quote exceeds contract price. Verify written amendment exists before agreeing.")
+    elif delta and delta["absolute"] == 0:
+        st.success("In line with contract price.")
     elif lp.get("display") == "ambiguous — see open issues":
         st.warning("Price unit in email is ambiguous. See open issues.")
-    elif lp.get("display") is None:
-        st.caption("No email price quote to compare.")
 
     # Early payment discount — rendered if extracted from emails/contract
     _sig = packet.get("financial_signals") or {}
