@@ -42,14 +42,15 @@ meetings = cached_meetings()
 
 # ── Header ────────────────────────────────────────────────────────────────────
 
-st.title("Strauss Procurement")
+st.title("Procurement Overview")
 st.caption("Negotiation intelligence dashboard · All data is local — no API calls on this page")
 st.divider()
 
 # ── Stat tiles ────────────────────────────────────────────────────────────────
 
+total_suppliers = len(summaries)
 meetings_this_week = [m for m in meetings if m["days_until"] <= 7]
-at_risk = [s for s in summaries if s["health_label"] == "At risk"]
+at_risk = [s for s in summaries if s["combined_health_label"] == "At risk"]
 contract_issues = [s for s in summaries if s["contract"]["status"] in ("expired", "draft", "no_active_contract")]
 
 s1, s2, s3, s4 = st.columns(4)
@@ -58,9 +59,9 @@ with s1:
 with s2:
     st.markdown(kpi_card(str(len(meetings_this_week)), "This Week", "Next 7 days"), unsafe_allow_html=True)
 with s3:
-    st.markdown(kpi_card(str(len(at_risk)), "Suppliers at Risk", "Relationship health"), unsafe_allow_html=True)
+    st.markdown(kpi_card(f"{len(at_risk)} of {total_suppliers}", "Suppliers at Risk", "Combined health score"), unsafe_allow_html=True)
 with s4:
-    st.markdown(kpi_card(str(len(contract_issues)), "Contract Issues", "Expired or missing"), unsafe_allow_html=True)
+    st.markdown(kpi_card(f"{len(contract_issues)} of {total_suppliers}", "Contract Issues", "Expired or missing"), unsafe_allow_html=True)
 
 st.divider()
 

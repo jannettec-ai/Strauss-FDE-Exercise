@@ -45,7 +45,7 @@ st.sidebar.divider()
 st.sidebar.caption("🔒 Email content is processed in memory only and not retained beyond this session.")
 
 pg = st.navigation([
-    st.Page("pages/0_Home.py",              title="Home",              icon="🏠", default=True),
+    st.Page("pages/0_Home.py",              title="Procurement Overview", icon="🏠", default=True),
     st.Page("pages/2_Meeting_Prep.py",      title="Meeting Prep",      icon="⚡"),
     st.Page("pages/financial_decisions.py", title="Financial Analysis", icon="💡"),
     st.Page("pages/3_Pricing.py",           title="Market Intel",      icon="📈"),
