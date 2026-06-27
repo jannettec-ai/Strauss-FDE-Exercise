@@ -41,6 +41,8 @@ if "reference_data" not in st.session_state:
 _fx = st.session_state.reference_data["fx_rates"]
 _as_of = _fx["as_of_date"].max() if not _fx.empty else "unavailable"
 st.sidebar.caption(f"Market data as of: {_as_of}")
+st.sidebar.divider()
+st.sidebar.caption("🔒 Email content is processed in memory only and not retained beyond this session.")
 
 pg = st.navigation([
     st.Page("pages/0_Home.py",              title="Home",              icon="🏠", default=True),
