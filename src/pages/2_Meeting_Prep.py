@@ -635,13 +635,44 @@ with right:
     _epd_rate = _sig.get("early_payment_discount_rate")
     _epd_days = _sig.get("early_payment_discount_days")
     _net_days = _sig.get("net_payment_days")
-    if _epd_rate and _epd_days:
+    if _epd_rate and _epd_days and _net_days:
+        # Implied APR of taking the discount
+        _diff_days = (_net_days or 30) - _epd_days
+        _apr = round((_epd_rate / (1 - _epd_rate)) * (365 / _diff_days) * 100, 1) if _diff_days > 0 else None
+
+        # BOI prime rate from live data (for verdict)
+        _rd_epd = st.session_state.get("reference_data", {})
+        _lr_epd = _rd_epd.get("lending_rates", pd.DataFrame())
+        _boi_epd = None
+        if not _lr_epd.empty:
+            _boi_row = _lr_epd[_lr_epd["rate_type"] == "Prime Rate"]
+            if not _boi_row.empty:
+                _boi_epd = float(_boi_row.iloc[0]["rate_pct"])
+
+        if _apr is not None:
+            if _boi_epd is not None:
+                _spread = _apr - _boi_epd
+                if _spread > 10:
+                    _verdict = f"✅ Take the discount — implied APR {_apr:.1f}% is {_spread:.1f}pp above your {_boi_epd:.1f}% cost of capital."
+                    _level = "success"
+                elif _spread > 0:
+                    _verdict = f"⚠️ Worth considering — implied APR {_apr:.1f}% modestly exceeds your {_boi_epd:.1f}% cost of capital."
+                    _level = "info"
+                else:
+                    _verdict = f"❌ Not financially rational — implied APR {_apr:.1f}% is below your {_boi_epd:.1f}% cost of capital."
+                    _level = "warning"
+            else:
+                _verdict = f"Implied APR: **{_apr:.1f}%**. Compare against your cost of capital to decide."
+                _level = "info"
+        else:
+            _verdict = "Insufficient payment term data to calculate APR."
+            _level = "info"
+
         st.markdown(
             alert_card(
                 f"**{_epd_rate * 100:.1f}%** discount if paid within {_epd_days} days "
-                f"(standard: net {_net_days or '—'} days). "
-                f"See Market Intel → Cost of Money to evaluate whether to take it.",
-                level="info",
+                f"(vs. standard net {_net_days} days).  \n{_verdict}",
+                level=_level,
                 title="💳 Early payment discount",
             ),
             unsafe_allow_html=True,
@@ -748,9 +779,7 @@ with right:
             src_label = "BOI API" if src_ok else "fallback estimate"
             st.markdown(f"**BOI Prime Rate:** {boi_rate:.2f}%  ·  {src_label}")
             st.caption(
-                "Your ILS cost of capital. An early payment discount is financially "
-                f"rational if its implied APR exceeds {boi_rate:.2f}%. "
-                "See Market Intel → Cost of Money for full analysis."
+                f"Your ILS cost of capital — used above to evaluate any early payment discount offer."
             )
             signals_shown += 1
 
