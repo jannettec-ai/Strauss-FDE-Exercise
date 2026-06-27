@@ -76,31 +76,30 @@ def days_to_renewal_display(renewal_date_str):
 
 # ── Sidebar — search and filter ───────────────────────────────────────────────
 
+all_summaries = cached_all_summaries()
+all_meetings = cached_meetings()
+
+supplier_names = sorted(s["supplier_name"] for s in all_summaries)
+
 with st.sidebar:
     st.title("🏭 Supplier Directory")
     st.divider()
-    search = st.text_input("🔍 Search supplier", placeholder="Name, category, or country…")
+    search = st.selectbox(
+        "🔍 Search supplier",
+        options=supplier_names,
+        index=None,
+        placeholder="Type to search…",
+    )
     categories = ["All"] + sorted({s[1] for s in SUPPLIERS.values()})
     cat_filter = st.selectbox("Category", categories)
     st.divider()
     st.caption(f"{len(SUPPLIERS)} active suppliers")
 
-# ── Load data ─────────────────────────────────────────────────────────────────
-
-all_summaries = cached_all_summaries()
-all_meetings = cached_meetings()
-
 # ── Filter ────────────────────────────────────────────────────────────────────
 
 filtered = all_summaries
 if search:
-    q = search.lower()
-    filtered = [
-        s for s in filtered
-        if q in s["supplier_name"].lower()
-        or q in s["category"].lower()
-        or q in s["geography"].lower()
-    ]
+    filtered = [s for s in filtered if s["supplier_name"] == search]
 if cat_filter != "All":
     filtered = [s for s in filtered if s["category"] == cat_filter]
 
