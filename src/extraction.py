@@ -208,6 +208,8 @@ Return a single JSON object with exactly these fields. No markdown fences.
 
   "heads_up": "<1-2 sentences: the single most important thing to know before the next meeting with this supplier. Be specific, name the clause or email if relevant.>",
 
+  "negotiation_brief": "<2-3 sentences synthesising Strauss's negotiation position for this meeting. Cover: (1) relationship and contract health — is the supplier responsive, is the contract active and in good standing; (2) price position — is the supplier quoting above or below the contract base price, and if commodity benchmark data is present in the prompt, does the market trend (up or down over 6 months) give Strauss leverage or signal cost pressure; (3) the single most important thing to know walking in. Be specific: name the price gap, the benchmark move, the renewal window, or the clause that matters. Do not describe what the packet contains — describe what Strauss's negotiation position actually is. Written for a procurement manager who has 2 minutes before the meeting starts.>",
+
   "field_sources": {{
     "email_summary": "<e.g. 'Based on 13 emails, 2026-01-07 to 2026-05-08'>",
     "latest_price_quoted": "<e.g. 'Email 2026-03-03 from Yael Shapira, subject: Q2 Pricing Proposal'>",

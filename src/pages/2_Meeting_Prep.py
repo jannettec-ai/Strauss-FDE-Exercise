@@ -45,6 +45,7 @@ if "_doc_shown" not in st.session_state:
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 LOG_PATH = Path(__file__).parent.parent.parent / "data" / "correction_log.csv"
+PREP_LOG_PATH = Path(__file__).parent.parent.parent / "data" / "prep_time_log.csv"
 LOG_COLUMNS = ["timestamp", "meeting_id", "supplier_name", "field_key", "field_label", "flagged", "packet_generated_at"]
 
 ISSUE_CONFIG = {
@@ -159,9 +160,12 @@ def _doc_dialog():
 
 def src_expander(key, packet, doc_type, source_text, highlight=None):
     """📎 Source expander — collapsed by default, 'Open document' inside triggers popup."""
+    _mid = st.session_state.get("selected_id")
     with st.expander("📎 Source", expanded=False):
         st.caption(source_text)
         if st.button("Open source document ↗", key=key):
+            if _mid is not None:
+                st.session_state[f"interactions_{_mid}"] = st.session_state.get(f"interactions_{_mid}", 0) + 1
             st.session_state.doc_request = {
                 "type": doc_type,
                 "highlight": highlight,
@@ -189,6 +193,31 @@ def save_correction_log(meeting_id, supplier_name, corrections, generated_at):
                 "flagged": corrections.get(fk, False),
                 "packet_generated_at": generated_at,
             })
+
+def log_prep_time(meeting_id: int, supplier_name: str, elapsed_sec: int,
+                   advance_hours=None, interactions: int = 0):
+    """Append one prep-time entry to data/prep_time_log.csv."""
+    PREP_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    write_header = not PREP_LOG_PATH.exists()
+    with open(PREP_LOG_PATH, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        if write_header:
+            writer.writerow([
+                "timestamp", "meeting_id", "supplier_name",
+                "prep_seconds", "prep_minutes",
+                "advance_hours", "opened_24h_before", "interactions"
+            ])
+        writer.writerow([
+            datetime.utcnow().isoformat(),
+            meeting_id,
+            supplier_name,
+            elapsed_sec,
+            round(elapsed_sec / 60, 1),
+            advance_hours,
+            (advance_hours is not None and advance_hours >= 24),
+            interactions
+        ])
+
 
 _FALLBACK_CURRENCY = {
     "Ivoire Cacao Export": "USD", "Golden Coast Cocoa Traders": "USD",
@@ -241,76 +270,63 @@ with st.sidebar:
         label = f"**{m['date']}** · {m['supplier']}  \n_{m['category']} · {badge}_"
         if st.button(label, key=f"mtg_{m['meeting_id']}", use_container_width=True):
             st.session_state.selected_id = m["meeting_id"]
+            st.rerun()
 
-    st.divider()
-    if st.session_state.selected_id:
-        sel = next(m for m in meetings if m["meeting_id"] == st.session_state.selected_id)
-        mid = sel["meeting_id"]
-        st.markdown(f"**Selected:** {sel['supplier']}  \n{sel['date']}")
-
-        _force = st.session_state.pop(f"force_{mid}", False)
-        _btn = st.button("⚡ Generate Packet", type="primary", use_container_width=True)
-
-        if _btn or _force:
-            # ── Cache hit: load instantly, no Claude call ──────────────────
-            if not _force:
-                _cached = load_cached_packet(mid)
-                if _cached:
-                    st.session_state.packets[mid] = _cached
-                    _apply_financial_context(_cached, mid)
-
-            # ── Fresh generation with streaming progress ───────────────────
-            if not st.session_state.packets.get(mid):
-                with st.status(f"Extracting {sel['supplier']}…", expanded=True) as _status:
-                    _token_el = st.empty()
-                    _tick = [0]
-
-                    def _on_token(n: int) -> None:
-                        if n - _tick[0] >= 100:
-                            _token_el.caption(f"🤖 Writing… {n:,} chars")
-                            _tick[0] = n
-
-                    try:
-                        t_start = time.time()
-                        packet = run_packet(mid, on_token=_on_token)
-                        duration = time.time() - t_start
-                        _token_el.empty()
-                        _status.update(
-                            label=f"✅ Done in {duration:.1f}s",
-                            state="complete",
-                            expanded=False,
-                        )
-                        st.session_state.packets[mid] = packet
-                        _apply_financial_context(packet, mid)
-                        price_delta = packet.get("price_delta")
-                        record_generation(
-                            supplier_name=packet["supplier_name"],
-                            duration_seconds=duration,
-                            packet_length_chars=len(str(packet)),
-                            meeting_id=mid,
-                            category=packet.get("category"),
-                            kpi_response_days=packet.get("avg_response_days"),
-                            kpi_open_issues=packet.get("open_issues_count"),
-                            kpi_price_delta_pct=price_delta["pct"] if price_delta else None,
-                            kpi_days_to_renewal=packet.get("days_to_renewal"),
-                        )
-                    except Exception as e:
-                        _status.update(label="❌ Generation failed", state="error")
-                        st.error(f"Generation failed: {e}")
-    else:
-        st.info("Select a meeting above, then click Generate.")
+    if not st.session_state.selected_id:
+        st.info("Select a meeting above.")
 
 # ── Main area ─────────────────────────────────────────────────────────────────
 
 mid = st.session_state.selected_id
 packet = st.session_state.packets.get(mid) if mid else None
 
+if packet is None and mid is not None:
+    # Meeting selected but no packet yet — try cache then generate
+    _cached = load_cached_packet(mid)
+    if _cached:
+        st.session_state.packets[mid] = _cached
+        _apply_financial_context(_cached, mid)
+        packet = _cached
+    else:
+        sel = next(m for m in meetings if m["meeting_id"] == mid)
+        with st.status(f"Preparing packet for {sel['supplier']}…", expanded=True) as _status:
+            _token_el = st.empty()
+            _tick = [0]
+
+            def _on_token(n: int) -> None:
+                if n - _tick[0] >= 100:
+                    _token_el.caption(f"🤖 Analysing… {n:,} chars")
+                    _tick[0] = n
+
+            try:
+                t_start = time.time()
+                packet = run_packet(mid, on_token=_on_token)
+                duration = time.time() - t_start
+                _token_el.empty()
+                _status.update(label=f"✅ Ready in {duration:.1f}s", state="complete", expanded=False)
+                st.session_state.packets[mid] = packet
+                _apply_financial_context(packet, mid)
+                st.rerun()
+                price_delta = packet.get("price_delta")
+                record_generation(
+                    supplier_name=packet["supplier_name"],
+                    duration_seconds=duration,
+                    packet_length_chars=len(str(packet)),
+                    meeting_id=mid,
+                    category=packet.get("category"),
+                    kpi_response_days=packet.get("avg_response_days"),
+                    kpi_open_issues=packet.get("open_issues_count"),
+                    kpi_price_delta_pct=price_delta["pct"] if price_delta else None,
+                    kpi_days_to_renewal=packet.get("days_to_renewal"),
+                )
+            except Exception as e:
+                _status.update(label="❌ Generation failed", state="error")
+                st.error(f"Generation failed: {e}")
+                st.stop()
+
 if packet is None:
     st.markdown("## ⚡ Meeting Prep")
-    st.markdown(
-        "Select an upcoming supplier meeting from the sidebar and click "
-        "**Generate Packet** to produce a one-page AI briefing."
-    )
+    st.markdown("Select an upcoming supplier meeting from the sidebar.")
     st.divider()
     for m in meetings[:5]:
         st.markdown(f"- **{m['date']}** — {m['supplier']} _{m['category']}_")
@@ -319,6 +335,30 @@ if packet is None:
     st.stop()
 
 # ── Render packet ─────────────────────────────────────────────────────────────
+
+# Start prep timer when the packet is first displayed
+if f"prep_start_{mid}" not in st.session_state:
+    st.session_state[f"prep_start_{mid}"] = time.time()
+    st.session_state[f"interactions_{mid}"] = 0
+
+    # Calculate advance hours: how far before the meeting is this packet being opened
+    meeting_dt = None
+    for m in meetings:  # meetings list should be in scope
+        if m.get("meeting_id") == mid:
+            dt_str = m.get("date") or m.get("meeting_date") or m.get("datetime")
+            if dt_str:
+                try:
+                    meeting_dt = datetime.fromisoformat(str(dt_str))
+                except Exception:
+                    pass
+            break
+
+    if meeting_dt:
+        now = datetime.utcnow()
+        advance_hours = round((meeting_dt - now).total_seconds() / 3600, 1)
+        st.session_state[f"advance_hours_{mid}"] = advance_hours
+    else:
+        st.session_state[f"advance_hours_{mid}"] = None
 
 # Cache banner — shown when packet was served from disk cache
 if packet.get("_from_cache"):
@@ -371,20 +411,51 @@ if packet["meeting_notes"]:
 
 st.divider()
 
-# Heads-up
+# ── Negotiation Brief ─────────────────────────────────────────────────────────
+nb = packet.get("negotiation_brief", "")
+if nb:
+    st.markdown(section_label("Negotiation Brief"), unsafe_allow_html=True)
+    st.markdown(nb)
+    st.divider()
+
+# ── Watch for Today ───────────────────────────────────────────────────────────
+n_issues = len(issues)
+issue_label = f"Watch for Today ({n_issues} open issue{'s' if n_issues != 1 else ''})" if n_issues else "Watch for Today"
+st.markdown(section_label(issue_label), unsafe_allow_html=True)
+
 has_red = any(
     ISSUE_CONFIG.get(i["issue_type"], ("", "", "info"))[2] == "error"
     for i in issues
 )
 if has_red:
-    st.error(f"⚠️ **Heads-up:** {packet['heads_up']}")
+    st.error(f"⚠️ {packet['heads_up']}")
 else:
-    st.warning(f"⚠️ **Heads-up:** {packet['heads_up']}")
+    st.warning(f"⚠️ {packet['heads_up']}")
 if fs.get("heads_up"):
     doc_type = "contract" if "contract" in fs["heads_up"].lower() else "emails"
     src_expander("src_headsup", packet, doc_type, fs["heads_up"])
 
-# KPI row
+if not issues:
+    st.success("No open issues identified.")
+else:
+    for i, issue in enumerate(issues):
+        cfg = ISSUE_CONFIG.get(issue["issue_type"], ("⚪", issue["issue_type"], "info"))
+        icon, label, level = cfg
+        src_ref = issue.get("source_ref", "")
+        doc_type = "contract" if any(w in src_ref.lower() for w in ("contract", "section", "clause")) else "email"
+        msg = f"{icon} **{label}** — {issue['description']}"
+        if level == "error":
+            st.error(msg)
+        elif level == "warning":
+            st.warning(msg)
+        else:
+            st.info(msg)
+        if src_ref:
+            src_expander(f"src_issue_{i}", packet, doc_type, src_ref)
+
+st.divider()
+
+# ── KPI row ───────────────────────────────────────────────────────────────────
 k1, k2, k3, k4 = st.columns(4)
 with k1:
     avg_r = packet["avg_response_days"]
@@ -407,33 +478,11 @@ with k4:
 
 st.divider()
 
-# Open issues
-st.markdown(section_label(f"Open Issues ({len(issues)})"), unsafe_allow_html=True)
-if not issues:
-    st.success("No open issues identified.")
-else:
-    for i, issue in enumerate(issues):
-        cfg = ISSUE_CONFIG.get(issue["issue_type"], ("⚪", issue["issue_type"], "info"))
-        icon, label, level = cfg
-        src_ref = issue.get("source_ref", "")
-        doc_type = "contract" if any(w in src_ref.lower() for w in ("contract", "section", "clause")) else "email"
-        msg = f"{icon} **{label}** — {issue['description']}"
-        if level == "error":
-            st.error(msg)
-        elif level == "warning":
-            st.warning(msg)
-        else:
-            st.info(msg)
-        if src_ref:
-            src_expander(f"src_issue_{i}", packet, doc_type, src_ref)
-
-st.divider()
-
-# Two-column body — original layout restored
+# ── Reference detail ──────────────────────────────────────────────────────────
 left, right = st.columns([3, 2], gap="large")
 
 with left:
-    st.markdown(section_label("Email Thread Summary"), unsafe_allow_html=True)
+    st.markdown(section_label("Email History"), unsafe_allow_html=True)
     st.markdown(packet["email_summary"])
     st.caption(
         f"Based on {packet['email_count']} emails · Avg supplier response: {packet['avg_response_days']}d"
@@ -684,4 +733,40 @@ with st.expander("🔍 Field Corrections (internal quality tracking)", expanded=
     if st.button("💾 Save corrections to log", key=f"save_log_{mid}"):
         save_correction_log(mid, packet["supplier_name"], corr, packet["generated_at"])
         update_correction_rate(mid, rate)  # metrics.md §5 — write to metrics.db
+        st.session_state[f"interactions_{mid}"] = st.session_state.get(f"interactions_{mid}", 0) + 1
         st.success(f"Saved — {n_flagged} field(s) flagged ({rate}% correction rate recorded).")
+
+# ── Prep time timer ───────────────────────────────────────────────────────────
+
+elapsed_sec = int(time.time() - st.session_state[f"prep_start_{mid}"])
+elapsed_min = elapsed_sec // 60
+elapsed_s = elapsed_sec % 60
+
+if not st.session_state.get(f"prep_logged_{mid}", False):
+    st.divider()
+    col_timer, col_btn = st.columns([3, 1])
+    with col_timer:
+        advance_h = st.session_state.get(f"advance_hours_{mid}")
+        if advance_h is not None and advance_h > 0:
+            advance_label = f" · {advance_h:.0f}h before meeting"
+        elif advance_h is not None:
+            advance_label = " · meeting is now or past"
+        else:
+            advance_label = ""
+        st.caption(f"⏱ Prep time so far: {elapsed_min}m {elapsed_s:02d}s{advance_label}")
+    with col_btn:
+        if st.button("✅ Ready for meeting", key=f"ready_{mid}", type="primary"):
+            st.session_state[f"interactions_{mid}"] = st.session_state.get(f"interactions_{mid}", 0) + 1
+            st.session_state[f"prep_elapsed_{mid}"] = elapsed_sec
+            log_prep_time(
+                mid,
+                packet.get("supplier_name", ""),
+                elapsed_sec,
+                advance_hours=st.session_state.get(f"advance_hours_{mid}"),
+                interactions=st.session_state.get(f"interactions_{mid}", 0)
+            )
+            st.session_state[f"prep_logged_{mid}"] = True
+            st.rerun()
+else:
+    elapsed_logged = st.session_state.get(f"prep_elapsed_{mid}", 0)
+    st.success(f"✅ Prep time logged: {elapsed_logged // 60}m {elapsed_logged % 60:02d}s")

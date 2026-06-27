@@ -271,6 +271,7 @@ def run_packet(meeting_id: int, on_token=None) -> dict:
         "open_issues": extraction.get("open_issues", []),
         "commodity_benchmark": extraction.get("commodity_benchmark", ""),
         "heads_up": extraction.get("heads_up", ""),
+        "negotiation_brief": extraction.get("negotiation_brief", ""),
 
         # ── Benchmark (from CSV) ─────────────────────────────────────────
         "benchmark": benchmark,
