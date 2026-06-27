@@ -407,6 +407,11 @@ delta = packet["price_delta"]
 fs = packet.get("field_sources", {})
 
 # Header
+st.markdown(
+    '<div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;'
+    'letter-spacing:0.12em;color:#c8102e;margin-bottom:0.25rem;">Meeting Prep</div>',
+    unsafe_allow_html=True,
+)
 col_h1, col_h2 = st.columns([3, 1])
 with col_h1:
     st.markdown(
