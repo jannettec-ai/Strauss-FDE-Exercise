@@ -462,6 +462,24 @@ def alert_card(text: str, level: str = "warning", title: str = "") -> str:
     )
 
 
+def prose_card(label: str, text: str, caption: str = "") -> str:
+    safe = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    cap_html = (
+        f'<div style="font-size:0.75rem;color:#94a3b8;margin-top:0.6rem;">{caption}</div>'
+        if caption else ""
+    )
+    return (
+        f'<div style="background:white;border-radius:12px;border:1px solid #e2e8f0;'
+        f'padding:1.1rem 1.25rem;">'
+        f'<div style="font-size:0.67rem;font-weight:700;text-transform:uppercase;'
+        f'letter-spacing:0.08em;color:#94a3b8;margin-bottom:0.55rem;">{label}</div>'
+        f'<div style="font-size:0.9rem;color:#1e293b;line-height:1.65;'
+        f'font-family:\'Inter\',sans-serif;">{safe}</div>'
+        f'{cap_html}'
+        f'</div>'
+    )
+
+
 def brief_card(text: str) -> str:
     return (
         f'<div style="background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;'

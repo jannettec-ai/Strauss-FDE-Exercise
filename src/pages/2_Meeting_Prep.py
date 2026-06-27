@@ -18,7 +18,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import streamlit as st
-from ui_helpers import section_label, alert_card, brief_card
+from ui_helpers import section_label, alert_card, brief_card, prose_card
 
 if "ANTHROPIC_API_KEY" in st.secrets:
     os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
@@ -438,7 +438,9 @@ st.divider()
 nb = packet.get("negotiation_brief", "")
 if nb:
     st.markdown(brief_card(nb), unsafe_allow_html=True)
-    st.divider()
+else:
+    st.markdown(brief_card("Negotiation brief not available — click 🔄 Refresh to regenerate with AI insights."), unsafe_allow_html=True)
+st.divider()
 
 # ── Watch for Today ───────────────────────────────────────────────────────────
 n_issues = len(issues)
@@ -473,13 +475,12 @@ st.divider()
 left, right = st.columns([3, 2], gap="large")
 
 with left:
-    st.markdown(section_label("Email History"), unsafe_allow_html=True)
-    st.markdown(packet["email_summary"])
-    st.caption(
+    _email_cap = (
         f"Based on {packet['email_count']} emails · Avg supplier response: {packet['avg_response_days']}d"
         if packet["avg_response_days"] is not None
         else f"Based on {packet['email_count']} emails"
     )
+    st.markdown(prose_card("Email History", packet["email_summary"], caption=_email_cap), unsafe_allow_html=True)
     if fs.get("email_summary"):
         src_expander("src_email_summary", packet, "emails", fs["email_summary"])
 
