@@ -50,7 +50,7 @@ st.divider()
 
 total_suppliers = len(summaries)
 meetings_this_week = [m for m in meetings if m["days_until"] <= 7]
-at_risk = [s for s in summaries if s["combined_health_label"] == "At risk"]
+at_risk = [s for s in summaries if s["health_label"] == "At risk"]
 contract_issues = [s for s in summaries if s["contract"]["status"] in ("expired", "draft", "no_active_contract")]
 
 s1, s2, s3, s4 = st.columns(4)
@@ -60,7 +60,7 @@ with s2:
     st.markdown(kpi_card(str(len(meetings_this_week)), "This Week", "Next 7 days"), unsafe_allow_html=True)
 with s3:
     _val = f'{len(at_risk)}<span style="font-size:0.9rem;font-weight:400;color:#94a3b8"> /{total_suppliers}</span>'
-    st.markdown(kpi_card(_val, "Suppliers at Risk", "Combined health score"), unsafe_allow_html=True)
+    st.markdown(kpi_card(_val, "Suppliers at Risk", "Relationship health signals"), unsafe_allow_html=True)
 with s4:
     _val = f'{len(contract_issues)}<span style="font-size:0.9rem;font-weight:400;color:#94a3b8"> /{total_suppliers}</span>'
     st.markdown(kpi_card(_val, "Contract Issues", "Expired or missing"), unsafe_allow_html=True)
