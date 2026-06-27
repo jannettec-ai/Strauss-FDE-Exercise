@@ -449,31 +449,33 @@ else:
 st.divider()
 
 # ── Watch for Today ───────────────────────────────────────────────────────────
-n_issues = len(issues)
-issue_label = f"Watch for Today — {n_issues} open issue{'s' if n_issues != 1 else ''}" if n_issues else "Watch for Today"
-st.markdown(section_label(issue_label), unsafe_allow_html=True)
+_wl, _wr = st.columns([3, 2], gap="large")
+with _wl:
+    n_issues = len(issues)
+    issue_label = f"Watch for Today — {n_issues} open issue{'s' if n_issues != 1 else ''}" if n_issues else "Watch for Today"
+    st.markdown(section_label(issue_label), unsafe_allow_html=True)
 
-has_red = any(
-    ISSUE_CONFIG.get(i["issue_type"], ("", "", "info"))[2] == "error"
-    for i in issues
-)
-hu_level = "error" if has_red else "warning"
-st.markdown(alert_card(packet["heads_up"], level=hu_level, title="Priority alert"), unsafe_allow_html=True)
-if fs.get("heads_up"):
-    doc_type = "contract" if "contract" in fs["heads_up"].lower() else "emails"
-    src_expander("src_headsup", packet, doc_type, fs["heads_up"])
+    has_red = any(
+        ISSUE_CONFIG.get(i["issue_type"], ("", "", "info"))[2] == "error"
+        for i in issues
+    )
+    hu_level = "error" if has_red else "warning"
+    st.markdown(alert_card(packet["heads_up"], level=hu_level, title="Priority alert"), unsafe_allow_html=True)
+    if fs.get("heads_up"):
+        doc_type = "contract" if "contract" in fs["heads_up"].lower() else "emails"
+        src_expander("src_headsup", packet, doc_type, fs["heads_up"])
 
-if not issues:
-    st.markdown(alert_card("No open issues identified.", level="success"), unsafe_allow_html=True)
-else:
-    for i, issue in enumerate(issues):
-        cfg = ISSUE_CONFIG.get(issue["issue_type"], ("⚪", issue["issue_type"], "info"))
-        icon, label, level = cfg
-        src_ref = issue.get("source_ref", "")
-        doc_type = "contract" if any(w in src_ref.lower() for w in ("contract", "section", "clause")) else "email"
-        st.markdown(alert_card(issue["description"], level=level, title=f"{icon} {label}"), unsafe_allow_html=True)
-        if src_ref:
-            src_expander(f"src_issue_{i}", packet, doc_type, src_ref)
+    if not issues:
+        st.markdown(alert_card("No open issues identified.", level="success"), unsafe_allow_html=True)
+    else:
+        for i, issue in enumerate(issues):
+            cfg = ISSUE_CONFIG.get(issue["issue_type"], ("⚪", issue["issue_type"], "info"))
+            icon, label, level = cfg
+            src_ref = issue.get("source_ref", "")
+            doc_type = "contract" if any(w in src_ref.lower() for w in ("contract", "section", "clause")) else "email"
+            st.markdown(alert_card(issue["description"], level=level, title=f"{icon} {label}"), unsafe_allow_html=True)
+            if src_ref:
+                src_expander(f"src_issue_{i}", packet, doc_type, src_ref)
 
 st.divider()
 
