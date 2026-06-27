@@ -243,7 +243,7 @@ _FALLBACK_CURRENCY = {
 
 def _apply_financial_context(packet: dict, mid: int) -> None:
     """Set st.session_state.financial_context from a packet (works for cache or fresh)."""
-    _sig = packet.get("financial_signals", {})
+    _sig = packet.get("financial_signals") or {}
     _currency = _sig.get("contract_currency") or _FALLBACK_CURRENCY.get(packet["supplier_name"], "USD")
     st.session_state.financial_context = {
         "supplier_name": packet["supplier_name"],
@@ -631,7 +631,7 @@ with right:
         st.caption("No email price quote to compare.")
 
     # Early payment discount — rendered if extracted from emails/contract
-    _sig = packet.get("financial_signals", {})
+    _sig = packet.get("financial_signals") or {}
     _epd_rate = _sig.get("early_payment_discount_rate")
     _epd_days = _sig.get("early_payment_discount_days")
     _net_days = _sig.get("net_payment_days")
