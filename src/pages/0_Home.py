@@ -69,7 +69,7 @@ st.divider()
 left, right = st.columns([3, 2], gap="large")
 
 with left:
-    st.markdown(section_label("Upcoming Meetings"), unsafe_allow_html=True)
+    st.markdown(section_label("Upcoming Meetings", "Supplier meetings scheduled in the next 90 days, ordered by date."), unsafe_allow_html=True)
     if not meetings:
         st.info("No upcoming meetings in calendar.")
     else:
@@ -86,7 +86,7 @@ with left:
         st.caption("→ Use **Meeting Prep** in the sidebar to generate a packet")
 
 with right:
-    st.markdown(section_label("Supplier Health"), unsafe_allow_html=True)
+    st.markdown(section_label("Supplier Health", "Combined score: relationship signals (response time, email frequency) + contract status. Green = healthy, Yellow = stable, Red = at risk."), unsafe_allow_html=True)
     rows_html = "".join(
         health_row(
             s["supplier_name"],
@@ -102,7 +102,7 @@ st.divider()
 
 # ── Latest discussions ────────────────────────────────────────────────────────
 
-st.markdown(section_label("Latest Discussions"), unsafe_allow_html=True)
+st.markdown(section_label("Latest Discussions", "Most recent email per supplier. Shows who last made contact and when."), unsafe_allow_html=True)
 st.caption("Most recent email per supplier, across all active relationships")
 
 latest = sorted(

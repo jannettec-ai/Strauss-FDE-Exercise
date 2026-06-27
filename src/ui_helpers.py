@@ -501,8 +501,13 @@ def badge(text: str, variant: str = "gray") -> str:
     return f'<span class="s-badge s-badge-{variant}">{text}</span>'
 
 
-def section_label(text: str) -> str:
-    return f'<div class="s-section-label">{text}</div>'
+def section_label(text: str, tooltip: str = "") -> str:
+    tip = f' title="{tooltip}"' if tooltip else ""
+    info = (
+        f' <span style="font-size:0.7rem;color:#94a3b8;cursor:help;" title="{tooltip}">ⓘ</span>'
+        if tooltip else ""
+    )
+    return f'<div class="s-section-label"{tip}>{text}{info}</div>'
 
 
 def packet_title_html(supplier: str, caption: str = "") -> str:

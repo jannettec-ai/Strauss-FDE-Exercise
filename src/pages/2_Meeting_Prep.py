@@ -541,7 +541,7 @@ with left:
         src_expander("src_email_summary", packet, "emails", fs["email_summary"])
 
     st.divider()
-    st.markdown(section_label("Contract at a Glance"), unsafe_allow_html=True)
+    st.markdown(section_label("Contract at a Glance", "Key terms extracted from the signed contract on file: status, renewal date, payment terms, and volume commitments."), unsafe_allow_html=True)
     status = ct.get("status", "unknown")
     status_badge = {
         "active": "🟢 Active",
@@ -597,7 +597,7 @@ with left:
                 st.rerun()
 
 with right:
-    st.markdown(section_label("Pricing"), unsafe_allow_html=True)
+    st.markdown(section_label("Pricing", "Contract base price vs. the most recent price quoted in supplier emails. Delta flags any informal increase not backed by a written amendment."), unsafe_allow_html=True)
     st.markdown(f"**Contract base price:** {ct.get('contract_base_price', '—')}")
 
     if lp.get("display"):
@@ -676,7 +676,7 @@ with right:
         )
 
     st.divider()
-    st.markdown(section_label("Commodity Benchmark"), unsafe_allow_html=True)
+    st.markdown(section_label("Commodity Benchmark", "Live market price for this supplier's commodity category. Shows where the market sits relative to your contracted and quoted price."), unsafe_allow_html=True)
     if bm:
         chg = bm.get("six_month_change_pct")
         chg_str = f"{chg:+.1f}%" if chg is not None else "n/a"
@@ -717,7 +717,7 @@ with right:
     _lr  = rd.get("lending_rates",        pd.DataFrame())
 
     st.divider()
-    st.markdown(section_label("Live Market Signals"), unsafe_allow_html=True)
+    st.markdown(section_label("Live Market Signals", "Real-time FX rates, commodity prices, and cost of capital — pulled at session start. Relevant to this supplier's currency and category."), unsafe_allow_html=True)
 
     signals_shown = 0
 

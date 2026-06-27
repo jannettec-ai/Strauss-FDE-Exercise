@@ -248,7 +248,7 @@ else:
     left, right = st.columns([3, 2], gap="large")
 
     with left:
-        st.markdown(section_label("Email Activity"), unsafe_allow_html=True)
+        st.markdown(section_label("Email Activity", "Volume and response time trends over the past 6 months, based on the supplier email thread."), unsafe_allow_html=True)
         by_month = s["email_by_month"]
         if by_month:
             df = pd.DataFrame.from_dict(by_month, orient="index", columns=["Emails"])
@@ -259,7 +259,7 @@ else:
 
         st.divider()
 
-        st.markdown(section_label("Relationship Health"), unsafe_allow_html=True)
+        st.markdown(section_label("Relationship Health", "Trend analysis: is the supplier responding faster or slower over time? Are email exchanges increasing or declining?"), unsafe_allow_html=True)
 
         rt = s["response_trend"]
         vt = s["volume_trend"]
@@ -298,7 +298,7 @@ else:
 
         st.divider()
 
-        st.markdown(section_label("Retention Signal"), unsafe_allow_html=True)
+        st.markdown(section_label("Retention Signal", "Combined health score: relationship signals + contract status. Flags suppliers that may need proactive attention."), unsafe_allow_html=True)
         health = s["combined_health_label"]
         health_icon = HEALTH_BADGE.get(health, "⚪")
 
