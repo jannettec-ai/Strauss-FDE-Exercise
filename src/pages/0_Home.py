@@ -59,9 +59,11 @@ with s1:
 with s2:
     st.markdown(kpi_card(str(len(meetings_this_week)), "This Week", "Next 7 days"), unsafe_allow_html=True)
 with s3:
-    st.markdown(kpi_card(f"{len(at_risk)} of {total_suppliers}", "Suppliers at Risk", "Combined health score"), unsafe_allow_html=True)
+    _val = f'{len(at_risk)}<span style="font-size:0.9rem;font-weight:400;color:#94a3b8"> /{total_suppliers}</span>'
+    st.markdown(kpi_card(_val, "Suppliers at Risk", "Combined health score"), unsafe_allow_html=True)
 with s4:
-    st.markdown(kpi_card(f"{len(contract_issues)} of {total_suppliers}", "Contract Issues", "Expired or missing"), unsafe_allow_html=True)
+    _val = f'{len(contract_issues)}<span style="font-size:0.9rem;font-weight:400;color:#94a3b8"> /{total_suppliers}</span>'
+    st.markdown(kpi_card(_val, "Contract Issues", "Expired or missing"), unsafe_allow_html=True)
 
 st.divider()
 
