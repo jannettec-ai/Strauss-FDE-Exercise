@@ -74,9 +74,9 @@ html, body, [class*="css"] {
 }
 
 /* ── Headings ── */
-h1 { font-size: 1.9rem !important; font-weight: 700 !important; color: #0f172a !important; letter-spacing: -0.02em !important; }
-h2 { font-size: 1.35rem !important; font-weight: 600 !important; color: #0f172a !important; }
-h3 { font-size: 1.1rem !important; font-weight: 600 !important; color: #1e293b !important; }
+h1 { font-size: 2.1rem !important; font-weight: 800 !important; color: #0f172a !important; letter-spacing: -0.03em !important; }
+h2 { font-size: 1.5rem !important; font-weight: 700 !important; color: #0f172a !important; letter-spacing: -0.01em !important; }
+h3 { font-size: 1.15rem !important; font-weight: 600 !important; color: #1e293b !important; }
 
 /* ── Primary buttons ── */
 [data-testid="stBaseButton-primary"] button,
@@ -316,13 +316,15 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
 }
 
 .s-section-label {
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: #94a3b8;
-  margin: 0 0 0.6rem 0;
-  padding: 0;
+  letter-spacing: 0.1em;
+  color: #1e293b;
+  margin: 1.4rem 0 0.85rem 0;
+  padding: 0 0 0.6rem 0.65rem;
+  border-left: 3px solid #c8102e;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 /* ── Column flex fix: prevents columns from overflowing their allocation ── */
@@ -339,26 +341,30 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   box-sizing: border-box !important;
 }
 [data-testid="stMarkdownContainer"] h1 {
-  font-size: 1.05rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0 !important;
+  font-size: 2.0rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.025em !important;
   text-transform: none !important;
-  margin: 0.6rem 0 0.3rem !important;
+  margin: 0.5rem 0 0.4rem !important;
+  line-height: 1.15 !important;
 }
 [data-testid="stMarkdownContainer"] h2 {
-  font-size: 0.92rem !important;
+  font-size: 1.4rem !important;
   font-weight: 700 !important;
-  letter-spacing: 0 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.01em !important;
   text-transform: none !important;
-  margin: 0.5rem 0 0.25rem !important;
+  margin: 0.5rem 0 0.3rem !important;
 }
 [data-testid="stMarkdownContainer"] h3,
 [data-testid="stMarkdownContainer"] h4 {
-  font-size: 0.85rem !important;
+  font-size: 1.05rem !important;
   font-weight: 600 !important;
+  color: #1e293b !important;
   letter-spacing: 0 !important;
   text-transform: none !important;
-  margin: 0.4rem 0 0.2rem !important;
+  margin: 0.4rem 0 0.25rem !important;
 }
 [data-testid="stMarkdownContainer"] p {
   font-size: 0.88rem !important;
@@ -496,7 +502,25 @@ def badge(text: str, variant: str = "gray") -> str:
 
 
 def section_label(text: str) -> str:
-    return f'<p class="s-section-label">{text}</p>'
+    return f'<div class="s-section-label">{text}</div>'
+
+
+def packet_title_html(supplier: str, caption: str = "") -> str:
+    cap_html = (
+        f'<div style="font-size:0.85rem;color:#64748b;margin-top:0.35rem;'
+        f'font-family:\'Inter\',sans-serif;">{caption}</div>'
+        if caption else ""
+    )
+    return (
+        f'<div style="margin-bottom:0.25rem;">'
+        f'<div style="font-size:2rem;font-weight:800;color:#0f172a;'
+        f'letter-spacing:-0.03em;line-height:1.15;font-family:\'Inter\',sans-serif;">'
+        f'{supplier}</div>'
+        f'<div style="width:2.75rem;height:3px;background:#c8102e;'
+        f'border-radius:2px;margin-top:0.45rem;"></div>'
+        f'{cap_html}'
+        f'</div>'
+    )
 
 
 def kpi_card(value: str, label: str, sub: str = "") -> str:

@@ -18,7 +18,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import streamlit as st
-from ui_helpers import section_label, alert_card, brief_card, prose_card
+from ui_helpers import section_label, alert_card, brief_card, prose_card, packet_title_html
 
 if "ANTHROPIC_API_KEY" in st.secrets:
     os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
@@ -395,12 +395,17 @@ fs = packet.get("field_sources", {})
 # Header
 col_h1, col_h2 = st.columns([3, 1])
 with col_h1:
-    st.title(packet["supplier_name"])
-    st.caption(
-        f"📅 {packet['meeting_date']}  ·  "
-        f"📍 {packet['geography']}  ·  "
-        f"🏷 {packet['category'].title()}  ·  "
-        f"Meeting #{mid}"
+    st.markdown(
+        packet_title_html(
+            packet["supplier_name"],
+            caption=(
+                f"📅 {packet['meeting_date']}  ·  "
+                f"📍 {packet['geography']}  ·  "
+                f"🏷 {packet['category'].title()}  ·  "
+                f"Meeting #{mid}"
+            ),
+        ),
+        unsafe_allow_html=True,
     )
 with col_h2:
     st.caption(f"Generated {packet['generated_at'][:10]}")
