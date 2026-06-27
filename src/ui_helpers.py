@@ -439,6 +439,40 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
 # ── Component builders ─────────────────────────────────────────────────────────
 
 
+_ALERT_COLORS = {
+    "error":   {"border": "#c8102e", "label_color": "#c8102e", "bg": "#fff8f8"},
+    "warning": {"border": "#b45309", "label_color": "#b45309", "bg": "#fffbeb"},
+    "info":    {"border": "#1d4ed8", "label_color": "#1d4ed8", "bg": "#f8faff"},
+    "success": {"border": "#166534", "label_color": "#166534", "bg": "#f0fdf4"},
+}
+
+def alert_card(text: str, level: str = "warning", title: str = "") -> str:
+    c = _ALERT_COLORS.get(level, _ALERT_COLORS["info"])
+    title_html = (
+        f'<div style="font-size:0.67rem;font-weight:700;text-transform:uppercase;'
+        f'letter-spacing:0.08em;color:{c["label_color"]};margin-bottom:0.35rem;">'
+        f'{title}</div>'
+    ) if title else ""
+    return (
+        f'<div style="background:{c["bg"]};border-radius:10px;border:1px solid #e2e8f0;'
+        f'border-left:4px solid {c["border"]};padding:0.85rem 1.1rem;margin-bottom:0.55rem;">'
+        f'{title_html}'
+        f'<div style="font-size:0.88rem;color:#1e293b;line-height:1.55;">{text}</div>'
+        f'</div>'
+    )
+
+
+def brief_card(text: str) -> str:
+    return (
+        f'<div style="background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;'
+        f'padding:1.1rem 1.25rem;margin-bottom:0.25rem;">'
+        f'<div style="font-size:0.67rem;font-weight:700;text-transform:uppercase;'
+        f'letter-spacing:0.08em;color:#64748b;margin-bottom:0.5rem;">AI Negotiation Brief</div>'
+        f'<div style="font-size:0.92rem;color:#1e293b;line-height:1.6;">{text}</div>'
+        f'</div>'
+    )
+
+
 def badge(text: str, variant: str = "gray") -> str:
     return f'<span class="s-badge s-badge-{variant}">{text}</span>'
 
