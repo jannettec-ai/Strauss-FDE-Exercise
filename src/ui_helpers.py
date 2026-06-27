@@ -73,16 +73,16 @@ html, body, [class*="css"] {
   padding-bottom: 3rem !important;
 }
 .main, .main p, .main div {
-  font-size: 0.95rem;
-  line-height: 1.65;
+  font-size: 1rem;
+  line-height: 1.7;
 }
 [data-testid="stCaptionContainer"] p,
 [data-testid="stCaptionContainer"] {
-  font-size: 0.82rem !important;
-  line-height: 1.55 !important;
+  font-size: 0.88rem !important;
+  line-height: 1.6 !important;
 }
 [data-testid="stExpander"] summary {
-  font-size: 0.92rem !important;
+  font-size: 1rem !important;
 }
 
 /* ── Headings ── */
@@ -205,7 +205,7 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   height: 100%;
 }
 .s-kpi-card .s-label {
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
@@ -257,10 +257,10 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
 .s-meeting-card .s-supplier {
   font-weight: 600;
   color: #0f172a;
-  font-size: 1rem;
+  font-size: 1.05rem;
 }
 .s-meeting-card .s-notes {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: #64748b;
   font-style: italic;
   margin-top: 1px;
@@ -295,10 +295,10 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   border-bottom: 1px solid #f1f5f9;
 }
 .s-health-row:last-child { border-bottom: none; }
-.s-health-row .s-name { font-weight: 600; color: #0f172a; font-size: 0.95rem; }
-.s-health-row .s-contract { font-size: 0.8rem; color: #64748b; margin-top: 1px; }
+.s-health-row .s-name { font-weight: 600; color: #0f172a; font-size: 1rem; }
+.s-health-row .s-contract { font-size: 0.85rem; color: #64748b; margin-top: 1px; }
 .s-health-row .s-info { flex: 1; min-width: 0; }
-.s-health-row .s-since { font-size: 0.8rem; color: #94a3b8; text-align: right; white-space: nowrap; }
+.s-health-row .s-since { font-size: 0.85rem; color: #94a3b8; text-align: right; white-space: nowrap; }
 .s-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 .s-dot-green  { background: #16a34a; }
 .s-dot-amber  { background: #ca8a04; }
@@ -315,10 +315,10 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   transition: box-shadow 0.2s ease;
 }
 .s-disc-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-.s-disc-card .s-supplier { font-weight: 700; color: #0f172a; font-size: 0.95rem; }
-.s-disc-card .s-sender { font-size: 0.82rem; color: #64748b; margin-top: 1px; }
+.s-disc-card .s-supplier { font-weight: 700; color: #0f172a; font-size: 1rem; }
+.s-disc-card .s-sender { font-size: 0.88rem; color: #64748b; margin-top: 1px; }
 .s-disc-card .s-subject {
-  font-size: 0.88rem; color: #334155; margin-top: 0.4rem;
+  font-size: 0.92rem; color: #334155; margin-top: 0.4rem;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .s-disc-card .s-preview {
@@ -328,14 +328,14 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
 }
 
 .s-section-label {
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: #1e293b;
-  margin: 1.4rem 0 0.85rem 0;
-  padding: 0 0 0.6rem 0.65rem;
-  border-left: 3px solid #c8102e;
+  margin: 1.6rem 0 0.9rem 0;
+  padding: 0 0 0.65rem 0.75rem;
+  border-left: 4px solid #c8102e;
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -379,19 +379,19 @@ hr { border-color: #e2e8f0 !important; margin: 1rem 0 !important; }
   margin: 0.4rem 0 0.25rem !important;
 }
 [data-testid="stMarkdownContainer"] p {
-  font-size: 0.95rem !important;
-  line-height: 1.65 !important;
+  font-size: 1rem !important;
+  line-height: 1.7 !important;
   margin: 0.2rem 0 !important;
 }
 [data-testid="stMarkdownContainer"] ul,
 [data-testid="stMarkdownContainer"] ol {
-  font-size: 0.95rem !important;
+  font-size: 1rem !important;
   padding-left: 1.2rem !important;
   margin: 0.2rem 0 !important;
 }
 [data-testid="stMarkdownContainer"] li {
-  margin-bottom: 0.2rem !important;
-  line-height: 1.65 !important;
+  margin-bottom: 0.25rem !important;
+  line-height: 1.7 !important;
 }
 
 /* ── Metric tile overrides (must come AFTER stMarkdownContainer rules) ── */
