@@ -287,140 +287,146 @@ with st.expander("🔒 FDE Access", expanded=False):
     if st.session_state.fde_authenticated:
         st.markdown("### FDE Metrics Dashboard")
         st.caption(
-            "Generation events → SQLite (data/metrics.db) · Corrections → data/correction_log.csv. "
-            "Resets on Streamlit Cloud redeploy — production would use a persistent event store."
+            "Tracks the three KPIs from the pilot proposal. "
+            "Data sources: data/metrics.db (generation events), "
+            "data/prep_time_log.csv (prep time), data/correction_log.csv (AI accuracy)."
         )
 
         summary = get_summary()
         import pandas as pd
 
-        m1, m2, m3 = st.columns(3)
-        with m1:
-            st.metric("Total Packets Generated", summary["total_packets"])
-        with m2:
-            avg = summary["avg_duration_sec"]
-            st.metric("Avg Generation Time", f"{avg}s" if avg is not None else "—")
-        with m3:
-            st.metric("Unique Suppliers Queried", summary["unique_suppliers"])
+        CORR_LOG  = ROOT / "data" / "correction_log.csv"
+        PREP_LOG  = ROOT / "data" / "prep_time_log.csv"
+        CACHE_DIR_FDE = ROOT / "data" / "packet_cache"
+        TOTAL_MEETINGS = 14  # from data/calendar.csv
 
-        if not summary["total_packets"]:
-            st.info("No generation events recorded yet. Generate a packet on the Meeting Prep page.")
+        # ── Adoption Rate (computed from cache + calendar) ──────────────────
+        cached_meeting_ids = {
+            p.stem.split("_")[1]
+            for p in CACHE_DIR_FDE.glob("meeting_*.json")
+        }
+        adoption_count = len(cached_meeting_ids)
+        adoption_rate  = round(adoption_count / TOTAL_MEETINGS * 100) if TOTAL_MEETINGS else 0
+
+        # ── Prep Time Saved (from log) ──────────────────────────────────────
+        PREP_BASELINE_MIN = 45
+        if PREP_LOG.exists():
+            df_prep = pd.read_csv(PREP_LOG)
+            sessions_logged   = len(df_prep)
+            avg_prep_min      = round(df_prep["prep_minutes"].mean(), 1) if sessions_logged else None
+            time_saved_min    = round(PREP_BASELINE_MIN - avg_prep_min, 1) if avg_prep_min is not None else None
+            pct_saved         = round(time_saved_min / PREP_BASELINE_MIN * 100) if time_saved_min is not None else None
         else:
-            st.divider()
+            df_prep = pd.DataFrame()
+            sessions_logged = avg_prep_min = time_saved_min = pct_saved = None
 
-            tab_corr, tab_rt, tab_oi, tab_pd, tab_dr = st.tabs([
-                "§5 Correction Rate", "§1 Response Time",
-                "§2 Open Issues", "§3 Price Delta", "§4 Days to Renewal",
-            ])
+        # ── Correction Rate (from log) ──────────────────────────────────────
+        if CORR_LOG.exists():
+            df_corr = pd.read_csv(CORR_LOG)
+            df_corr["flagged"] = df_corr["flagged"].astype(str).str.lower() == "true"
+            flagged = df_corr[df_corr["flagged"]]
+            corr_rate = round(len(flagged) / len(df_corr) * 100, 1) if len(df_corr) else 0
+        else:
+            df_corr = pd.DataFrame()
+            flagged  = pd.DataFrame()
+            corr_rate = None
 
-            # ── §5 Correction Rate ────────────────────────────────────────────
-            with tab_corr:
-                CORR_LOG = ROOT / "data" / "correction_log.csv"
-                if CORR_LOG.exists():
-                    df_corr = pd.read_csv(CORR_LOG)
-                    df_corr["flagged"] = df_corr["flagged"].astype(str).str.lower() == "true"
-                    flagged = df_corr[df_corr["flagged"]]
+        # ── 3 KPI headline tiles ────────────────────────────────────────────
+        k1, k2, k3 = st.columns(3)
+        with k1:
+            st.markdown("**KPI 1 — Prep Time Saved**")
+            st.caption(f"Baseline: {PREP_BASELINE_MIN} min manual prep · {sessions_logged or 0} sessions logged")
+            if time_saved_min is not None:
+                st.metric("Time saved per session", f"{time_saved_min} min", delta=f"{pct_saved}% reduction")
+                st.caption(f"Avg with tool: {avg_prep_min} min")
+            else:
+                st.metric("Time saved per session", "—")
+                st.caption("No sessions logged yet — click 'Ready for meeting' in Meeting Prep to record.")
+        with k2:
+            st.markdown("**KPI 2 — Adoption Rate**")
+            st.caption(f"Packets generated / total upcoming meetings ({TOTAL_MEETINGS})")
+            st.metric("Adoption rate", f"{adoption_rate}%", delta=f"{adoption_count}/{TOTAL_MEETINGS} meetings")
+        with k3:
+            st.markdown("**KPI 3 — AI Correction Rate**")
+            st.caption("Fields flagged as incorrect by PM / total fields presented")
+            if corr_rate is not None:
+                st.metric("Correction rate", f"{corr_rate}%",
+                          delta=f"{len(flagged)} of {len(df_corr)} fields flagged",
+                          delta_color="inverse")
+            else:
+                st.metric("Correction rate", "—")
+                st.caption("No corrections logged yet — use Field Corrections panel in Meeting Prep.")
 
-                    c1, c2, c3 = st.columns(3)
-                    with c1:
-                        st.metric("Total Fields Flagged", len(flagged))
-                    with c2:
-                        rate = round(len(flagged) / len(df_corr) * 100, 1) if len(df_corr) else 0
-                        st.metric("Overall Correction Rate", f"{rate}%")
-                    with c3:
-                        st.metric("Suppliers with Corrections", df_corr["supplier_name"].nunique())
+        st.divider()
 
-                    st.divider()
+        # ── Detail sections ─────────────────────────────────────────────────
+        tab_prep, tab_adopt, tab_corr_detail = st.tabs([
+            "Prep Time Detail", "Adoption Detail", "Correction Detail"
+        ])
+
+        with tab_prep:
+            if not df_prep.empty:
+                st.markdown(f"**{sessions_logged} sessions logged**  ·  baseline {PREP_BASELINE_MIN} min")
+                cols_show = [c for c in ["timestamp","supplier_name","prep_minutes","advance_hours","opened_24h_before","interactions"] if c in df_prep.columns]
+                st.dataframe(
+                    df_prep[cols_show].rename(columns={
+                        "timestamp": "Timestamp", "supplier_name": "Supplier",
+                        "prep_minutes": "Prep (min)", "advance_hours": "Hrs before meeting",
+                        "opened_24h_before": "24h+ advance", "interactions": "Interactions",
+                    }),
+                    hide_index=True, use_container_width=True,
+                )
+            else:
+                st.info(
+                    "No prep-time sessions logged yet.  \n"
+                    "Open a packet in Meeting Prep and click **✅ Ready for meeting** when done."
+                )
+
+        with tab_adopt:
+            st.markdown(f"**{adoption_count} of {TOTAL_MEETINGS} meetings** have a prep packet generated.")
+            summary_val = get_summary()
+            if summary_val["total_packets"]:
+                st.caption(f"Unique suppliers queried: {summary_val['unique_suppliers']}  ·  "
+                           f"Avg generation time: {summary_val['avg_duration_sec']}s")
+                if summary_val["recent_events"]:
+                    df_ev = pd.DataFrame(summary_val["recent_events"])
+                    df_ev["timestamp"] = df_ev["timestamp"].str.replace("T", " ")
+                    st.markdown("**Last 10 generation events**")
+                    st.dataframe(df_ev, hide_index=True, use_container_width=True)
+            else:
+                st.info("No generation events in metrics.db yet.")
+
+        with tab_corr_detail:
+            if not df_corr.empty:
+                col_f, col_s = st.columns(2)
+                with col_f:
+                    st.markdown("**By field — which AI extractions get flagged most**")
                     if not flagged.empty:
-                        col_f, col_s = st.columns(2)
-                        with col_f:
-                            st.markdown("**Flags by field** — which extractions the AI gets wrong most")
-                            fc = flagged["field_label"].value_counts().reset_index()
-                            fc.columns = ["Field", "Times Flagged"]
-                            st.dataframe(fc, hide_index=True, use_container_width=True)
-                        with col_s:
-                            st.markdown("**Flags by supplier** — which relationships have the most extraction noise")
-                            sc = flagged["supplier_name"].value_counts().reset_index()
-                            sc.columns = ["Supplier", "Times Flagged"]
-                            st.dataframe(sc, hide_index=True, use_container_width=True)
-
-                        st.divider()
-                        st.markdown("**Correction log** — all flagged fields, most recent first")
-                        df_show = flagged[["timestamp", "supplier_name", "field_label", "meeting_id"]].copy()
-                        df_show.columns = ["Timestamp", "Supplier", "Field Flagged", "Meeting #"]
-                        df_show = df_show.sort_values("Timestamp", ascending=False)
-                        st.dataframe(df_show, hide_index=True, use_container_width=True)
+                        fc = flagged["field_label"].value_counts().reset_index()
+                        fc.columns = ["Field", "Times Flagged"]
+                        st.dataframe(fc, hide_index=True, use_container_width=True)
                     else:
-                        st.info("No fields flagged yet — use the Field Corrections panel in Meeting Prep, then click Save.")
-                else:
-                    st.info("No correction log yet. Open a packet in Meeting Prep, flag any incorrect fields, and click Save corrections.")
-
-                avg_cr = summary["kpi_summary"].get("avg_correction_rate_pct")
-                if avg_cr is not None:
-                    st.caption(f"Avg correction rate recorded in metrics.db: {avg_cr}%")
-
-            # ── §1 Response Time ──────────────────────────────────────────────
-            with tab_rt:
-                st.markdown("**Avg calendar days from Strauss outbound email to first supplier reply (6-month window)**")
-                v = summary["kpi_summary"].get("avg_response_days")
-                st.metric("Portfolio Average", f"{v}d" if v else "—")
-                if summary["supplier_breakdown"]:
-                    df_rt = pd.DataFrame(summary["supplier_breakdown"])[
-                        ["supplier_name", "category", "packets", "avg_response_days"]
-                    ].rename(columns={
-                        "supplier_name": "Supplier", "category": "Category",
-                        "packets": "Packets", "avg_response_days": "Avg Response (d)",
-                    })
-                    st.dataframe(df_rt, hide_index=True, use_container_width=True)
-
-            # ── §2 Open Issues ────────────────────────────────────────────────
-            with tab_oi:
-                st.markdown("**Count of unresolved issues per packet (price disputes, delivery, contract gaps)**")
-                v = summary["kpi_summary"].get("avg_open_issues")
-                st.metric("Portfolio Average", str(v) if v is not None else "—")
-                if summary["supplier_breakdown"]:
-                    df_oi = pd.DataFrame(summary["supplier_breakdown"])[
-                        ["supplier_name", "category", "packets", "avg_open_issues"]
-                    ].rename(columns={
-                        "supplier_name": "Supplier", "category": "Category",
-                        "packets": "Packets", "avg_open_issues": "Avg Open Issues",
-                    })
-                    st.dataframe(df_oi, hide_index=True, use_container_width=True)
-
-            # ── §3 Price Delta ────────────────────────────────────────────────
-            with tab_pd:
-                st.markdown("**Latest email quote vs contract base price — positive = supplier quoting above contract**")
-                v = summary["kpi_summary"].get("avg_price_delta_pct")
-                st.metric("Portfolio Average Delta", f"{v:+.1f}%" if v is not None else "—")
-                if summary["supplier_breakdown"]:
-                    df_pd = pd.DataFrame(summary["supplier_breakdown"])[
-                        ["supplier_name", "category", "packets", "avg_price_delta_pct"]
-                    ].rename(columns={
-                        "supplier_name": "Supplier", "category": "Category",
-                        "packets": "Packets", "avg_price_delta_pct": "Avg Price Delta %",
-                    })
-                    st.dataframe(df_pd, hide_index=True, use_container_width=True)
-
-            # ── §4 Days to Renewal ────────────────────────────────────────────
-            with tab_dr:
-                st.markdown("**Days from packet generation date to contract renewal date**")
-                v = summary["kpi_summary"].get("avg_days_to_renewal")
-                st.metric("Portfolio Average", f"{int(v)}d" if v is not None else "—")
-                if summary["supplier_breakdown"]:
-                    df_dr = pd.DataFrame(summary["supplier_breakdown"])[
-                        ["supplier_name", "category", "packets", "avg_days_to_renewal"]
-                    ].rename(columns={
-                        "supplier_name": "Supplier", "category": "Category",
-                        "packets": "Packets", "avg_days_to_renewal": "Avg Days to Renewal",
-                    })
-                    st.dataframe(df_dr, hide_index=True, use_container_width=True)
-
-            st.divider()
-            if summary["recent_events"]:
-                st.markdown("**Last 10 generation events**")
-                df_recent = pd.DataFrame(summary["recent_events"])
-                df_recent["timestamp"] = df_recent["timestamp"].str.replace("T", " ")
-                st.dataframe(df_recent, use_container_width=True, hide_index=True)
+                        st.caption("No flags yet.")
+                with col_s:
+                    st.markdown("**By supplier — where extraction noise is highest**")
+                    if not flagged.empty:
+                        sc = flagged["supplier_name"].value_counts().reset_index()
+                        sc.columns = ["Supplier", "Times Flagged"]
+                        st.dataframe(sc, hide_index=True, use_container_width=True)
+                    else:
+                        st.caption("No flags yet.")
+                if not flagged.empty:
+                    st.divider()
+                    st.markdown("**Full correction log**")
+                    df_show = flagged[["timestamp","supplier_name","field_label","meeting_id"]].copy()
+                    df_show.columns = ["Timestamp","Supplier","Field Flagged","Meeting #"]
+                    st.dataframe(df_show.sort_values("Timestamp", ascending=False), hide_index=True, use_container_width=True)
+            else:
+                st.info(
+                    "No corrections logged yet.  \n"
+                    "Open a packet in Meeting Prep, flag any wrong fields in the **Field Corrections** panel, "
+                    "then click **Save corrections**."
+                )
 
         if st.button("Lock", key="fde_lock"):
             st.session_state.fde_authenticated = False
