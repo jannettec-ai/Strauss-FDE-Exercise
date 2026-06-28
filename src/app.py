@@ -62,5 +62,6 @@ pg = st.navigation([
     st.Page("pages/financial_decisions.py", title="Financial Analysis", icon="💡"),
     st.Page("pages/3_Pricing.py",           title="Market Intel",      icon="📈"),
     st.Page("pages/1_Suppliers.py",         title="Suppliers",         icon="🏭"),
+    st.Page("pages/fde_metrics.py",         title="FDE Access",        icon="🔒"),
 ])
 pg.run()
