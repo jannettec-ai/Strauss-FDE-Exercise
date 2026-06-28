@@ -537,12 +537,12 @@ with f4:
         arrow = "▲" if chg and chg > 0 else ("▼" if chg and chg < 0 else "")
         chg_str = f"{chg:+.1f}%" if chg is not None else ""
         bm_val = f"{bm['current_price']} {bm.get('unit','')}"
-        st.metric("Market Benchmark", bm_val,
+        st.metric("Commodity Pricing Trend", bm_val,
                   delta=f"{arrow} {chg_str} (6 months)" if chg_str else None,
                   delta_color="inverse",
-                  help="Live commodity benchmark price and 6-month trend direction")
+                  help="Live commodity pricing trend and 6-month direction")
     else:
-        st.metric("Market Benchmark", "—", help="No benchmark data for this category")
+        st.metric("Commodity Pricing Trend", "—", help="No benchmark data for this category")
 
 st.divider()
 
@@ -804,7 +804,7 @@ with right:
         )
 
     st.divider()
-    st.markdown(section_label("Commodity Benchmark", "Live market price for this supplier's commodity category. Shows where the market sits relative to your contracted and quoted price."), unsafe_allow_html=True)
+    st.markdown(section_label("Commodity Pricing Trend", "Live market price for this supplier's commodity category. Shows where the market sits relative to your contracted and quoted price."), unsafe_allow_html=True)
     if bm:
         chg = bm.get("six_month_change_pct")
         chg_str = f"{chg:+.1f}%" if chg is not None else "n/a"
