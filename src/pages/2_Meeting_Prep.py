@@ -687,27 +687,17 @@ with left:
     for field_label, field_value in contract_rows:
         st.markdown(f"**{field_label}:** {field_value}")
 
-    contract_source_fields = [
-        ("renewal_date",        "Renewal date"),
-        ("contract_base_price", "Base price"),
-        ("payment_terms",       "Payment terms"),
-        ("volume_commitment",   "Volume"),
-        ("key_penalty",         "Penalty clause"),
-    ]
-    source_lines = [f"- **{lbl}:** {fs[fk]}" for fk, lbl in contract_source_fields if fs.get(fk)]
-    if source_lines:
-        with st.expander("📎 Source", expanded=False):
-            st.markdown("\n".join(source_lines))
-            if st.button("Open contract ↗", key="src_contract"):
-                first_src = next((fs[fk] for fk, _ in contract_source_fields if fs.get(fk)), None)
-                st.session_state.doc_request = {
-                    "type": "contract",
-                    "highlight": first_src,
-                    "supplier_num": packet.get("supplier_num", ""),
-                    "supplier_name": packet.get("supplier_name", ""),
-                }
-                st.session_state._doc_open += 1
-                st.rerun()
+    with st.expander("📎 Source", expanded=False):
+        st.caption(f"Contract on file: {ct.get('contract_id', 'see contract document')}")
+        if st.button("Open contract ↗", key="src_contract"):
+            st.session_state.doc_request = {
+                "type": "contract",
+                "highlight": None,
+                "supplier_num": packet.get("supplier_num", ""),
+                "supplier_name": packet.get("supplier_name", ""),
+            }
+            st.session_state._doc_open += 1
+            st.rerun()
 
 with right:
     st.markdown(section_label("Pricing", "Contract base price vs. the most recent price quoted in supplier emails. Delta flags any informal increase not backed by a written amendment."), unsafe_allow_html=True)
