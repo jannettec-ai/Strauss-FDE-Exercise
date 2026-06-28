@@ -1,5 +1,6 @@
 # Solution (Part 2)
 
+
 ## The pitch
 
 An automated negotiation prep packet, generated ahead of every upcoming
@@ -110,6 +111,41 @@ doesn't your prototype look like what you just described": the
 production design is right-sized for this prototype's actual data
 volume and time constraint, not a simplification born of not knowing
 the real pattern.
+
+## Is this an agent?
+
+No — and being precise about this in the room matters.
+
+What's built is a **structured extraction pipeline** with a single Claude
+API call. Python orchestrates the full flow: load data from files, build
+a fixed prompt, call Claude once, parse the returned JSON, compute KPIs
+locally. Claude's role is to fill in a defined schema with high-quality
+structured output. There is no tool use, no multi-step reasoning, no
+Claude deciding what to look at next.
+
+| This prototype | An agent would |
+|---|---|
+| Python decides what data to load | Claude decides which sources to query |
+| One Claude call, fixed JSON schema | Multi-turn loop: one call's output drives the next |
+| Intelligence is in extraction quality | Intelligence is in process autonomy |
+| Deterministic flow | Adaptive flow |
+
+**What the agent path looks like in production:** Claude is given MCP
+tools (email search, contract lookup, pricing feed) and a goal: "prepare
+a negotiation brief for Supplier X." It decides which tools to call, in
+what order, based on what it finds. Spots a price discrepancy in email?
+Pulls the relevant contract clause to verify. Contract near renewal?
+Retrieves the last three renewal-related emails. The intelligence is in
+the process, not just the output.
+
+That's the right long-term architecture. What's built now is the correct
+prototype at this data volume and time constraint: one structured Claude
+call is simpler to build, test, and trust than an agent loop; it
+produces deterministic, auditable outputs; and it's the right scope for
+eight suppliers with flat files. The agent architecture adds value at
+real scale (hundreds of suppliers, multiple live source systems), which
+is why it's called out explicitly in the architecture doc rather than
+built now and left unexplained.
 
 ## The human in the loop
 

@@ -29,3 +29,4 @@ Thumbs.db
 
 # Metrics database (local only — resets on Streamlit Cloud redeploy)
 data/metrics.db
+~$*
