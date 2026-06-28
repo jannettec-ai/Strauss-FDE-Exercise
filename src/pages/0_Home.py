@@ -309,7 +309,7 @@ with st.expander("🔒 FDE Access", expanded=False):
         adoption_rate  = round(adoption_count / TOTAL_MEETINGS * 100) if TOTAL_MEETINGS else 0
 
         # ── Prep Time Saved (from log) ──────────────────────────────────────
-        PREP_BASELINE_MIN = 45
+        PREP_BASELINE_MIN = 120
         if PREP_LOG.exists():
             df_prep = pd.read_csv(PREP_LOG)
             sessions_logged   = len(df_prep)
