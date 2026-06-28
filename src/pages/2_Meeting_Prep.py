@@ -473,36 +473,35 @@ _other_meetings = [
     if m["supplier"] == packet["supplier_name"] and m["meeting_id"] != mid
 ]
 for _om in _other_meetings:
-    st.info(
-        f"📅 This supplier also has a meeting on **{_om['date']}** "
-        f"(in {_om['days_until']}d) — _{_om.get('notes', 'No agenda noted')}_"
-    )
-    with st.expander(f"See context for {_om['date']} meeting →", expanded=False):
-        _om_packet = load_cached_packet(_om["meeting_id"])
-        if _om_packet:
-            _om_issues = _om_packet.get("open_issues", [])
-            col_a, col_b = st.columns(2)
-            with col_a:
-                st.markdown(f"**Agenda:** {_om.get('notes', '—')}")
-                st.markdown(f"**Geography:** {_om.get('geography', '—')}")
+    _banner_col, _ctx_col = st.columns([5, 1])
+    with _banner_col:
+        st.info(
+            f"📅 This supplier also has a meeting on **{_om['date']}** "
+            f"(in {_om['days_until']}d) — _{_om.get('notes', 'No agenda noted')}_"
+        )
+    with _ctx_col:
+        with st.expander("See context →", expanded=False):
+            _om_packet = load_cached_packet(_om["meeting_id"])
+            if _om_packet:
+                _om_issues = _om_packet.get("open_issues", [])
                 _om_brief = _om_packet.get("negotiation_brief", "")
                 if _om_brief:
                     st.caption((_om_brief[:280] + "…") if len(_om_brief) > 280 else _om_brief)
-            with col_b:
-                st.markdown(f"**Open issues ({len(_om_issues)})**")
-                for _oi in _om_issues:
-                    _cfg = ISSUE_CONFIG.get(_oi["issue_type"], ("⚪", _oi["issue_type"], "info"))
-                    _icon, _label, _ = _cfg
-                    _desc = _oi["description"]
-                    st.caption(f"{_icon} **{_label}** — {(_desc[:110] + '…') if len(_desc) > 110 else _desc}")
-        else:
-            st.caption("No packet generated for this meeting yet.")
-        if st.button(
-            f"Open Meeting #{_om['meeting_id']} prep packet →",
-            key=f"go_other_{_om['meeting_id']}",
-        ):
-            st.session_state.selected_id = _om["meeting_id"]
-            st.rerun()
+                if _om_issues:
+                    st.markdown(f"**Open issues ({len(_om_issues)})**")
+                    for _oi in _om_issues:
+                        _cfg = ISSUE_CONFIG.get(_oi["issue_type"], ("⚪", _oi["issue_type"], "info"))
+                        _icon, _lbl, _ = _cfg
+                        _desc = _oi["description"]
+                        st.caption(f"{_icon} **{_lbl}** — {(_desc[:110] + '…') if len(_desc) > 110 else _desc}")
+            else:
+                st.caption("No packet yet for this meeting.")
+            if st.button(
+                f"Open packet →",
+                key=f"go_other_{_om['meeting_id']}",
+            ):
+                st.session_state.selected_id = _om["meeting_id"]
+                st.rerun()
 
 if _other_meetings:
     st.divider()
