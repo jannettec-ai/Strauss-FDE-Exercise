@@ -287,7 +287,7 @@ with st.expander("🔒 FDE Access", expanded=False):
     if st.session_state.fde_authenticated:
         st.markdown("### FDE Metrics Dashboard")
         st.caption(
-            "Generation events persisted to SQLite (data/metrics.db). "
+            "Generation events → SQLite (data/metrics.db) · Corrections → data/correction_log.csv. "
             "Resets on Streamlit Cloud redeploy — production would use a persistent event store."
         )
 
@@ -307,35 +307,115 @@ with st.expander("🔒 FDE Access", expanded=False):
             st.info("No generation events recorded yet. Generate a packet on the Meeting Prep page.")
         else:
             st.divider()
-            st.markdown("**KPI summary across all packets generated**")
-            kpi = summary["kpi_summary"]
-            k1, k2, k3, k4, k5 = st.columns(5)
-            with k1:
-                v = kpi.get("avg_response_days")
-                st.metric("Avg Response Time", f"{v}d" if v else "—")
-            with k2:
-                v = kpi.get("avg_open_issues")
-                st.metric("Avg Open Issues", str(v) if v is not None else "—")
-            with k3:
-                v = kpi.get("avg_price_delta_pct")
-                st.metric("Avg Price Delta", f"{v:+.1f}%" if v is not None else "—")
-            with k4:
-                v = kpi.get("avg_days_to_renewal")
-                st.metric("Avg Days to Renewal", f"{int(v)}d" if v is not None else "—")
-            with k5:
-                v = kpi.get("avg_correction_rate_pct")
-                st.metric("Avg Correction Rate", f"{v}%" if v is not None else "—")
+
+            tab_corr, tab_rt, tab_oi, tab_pd, tab_dr = st.tabs([
+                "§5 Correction Rate", "§1 Response Time",
+                "§2 Open Issues", "§3 Price Delta", "§4 Days to Renewal",
+            ])
+
+            # ── §5 Correction Rate ────────────────────────────────────────────
+            with tab_corr:
+                CORR_LOG = ROOT / "data" / "correction_log.csv"
+                if CORR_LOG.exists():
+                    df_corr = pd.read_csv(CORR_LOG)
+                    df_corr["flagged"] = df_corr["flagged"].astype(str).str.lower() == "true"
+                    flagged = df_corr[df_corr["flagged"]]
+
+                    c1, c2, c3 = st.columns(3)
+                    with c1:
+                        st.metric("Total Fields Flagged", len(flagged))
+                    with c2:
+                        rate = round(len(flagged) / len(df_corr) * 100, 1) if len(df_corr) else 0
+                        st.metric("Overall Correction Rate", f"{rate}%")
+                    with c3:
+                        st.metric("Suppliers with Corrections", df_corr["supplier_name"].nunique())
+
+                    st.divider()
+                    if not flagged.empty:
+                        col_f, col_s = st.columns(2)
+                        with col_f:
+                            st.markdown("**Flags by field** — which extractions the AI gets wrong most")
+                            fc = flagged["field_label"].value_counts().reset_index()
+                            fc.columns = ["Field", "Times Flagged"]
+                            st.dataframe(fc, hide_index=True, use_container_width=True)
+                        with col_s:
+                            st.markdown("**Flags by supplier** — which relationships have the most extraction noise")
+                            sc = flagged["supplier_name"].value_counts().reset_index()
+                            sc.columns = ["Supplier", "Times Flagged"]
+                            st.dataframe(sc, hide_index=True, use_container_width=True)
+
+                        st.divider()
+                        st.markdown("**Correction log** — all flagged fields, most recent first")
+                        df_show = flagged[["timestamp", "supplier_name", "field_label", "meeting_id"]].copy()
+                        df_show.columns = ["Timestamp", "Supplier", "Field Flagged", "Meeting #"]
+                        df_show = df_show.sort_values("Timestamp", ascending=False)
+                        st.dataframe(df_show, hide_index=True, use_container_width=True)
+                    else:
+                        st.info("No fields flagged yet — use the Field Corrections panel in Meeting Prep, then click Save.")
+                else:
+                    st.info("No correction log yet. Open a packet in Meeting Prep, flag any incorrect fields, and click Save corrections.")
+
+                avg_cr = summary["kpi_summary"].get("avg_correction_rate_pct")
+                if avg_cr is not None:
+                    st.caption(f"Avg correction rate recorded in metrics.db: {avg_cr}%")
+
+            # ── §1 Response Time ──────────────────────────────────────────────
+            with tab_rt:
+                st.markdown("**Avg calendar days from Strauss outbound email to first supplier reply (6-month window)**")
+                v = summary["kpi_summary"].get("avg_response_days")
+                st.metric("Portfolio Average", f"{v}d" if v else "—")
+                if summary["supplier_breakdown"]:
+                    df_rt = pd.DataFrame(summary["supplier_breakdown"])[
+                        ["supplier_name", "category", "packets", "avg_response_days"]
+                    ].rename(columns={
+                        "supplier_name": "Supplier", "category": "Category",
+                        "packets": "Packets", "avg_response_days": "Avg Response (d)",
+                    })
+                    st.dataframe(df_rt, hide_index=True, use_container_width=True)
+
+            # ── §2 Open Issues ────────────────────────────────────────────────
+            with tab_oi:
+                st.markdown("**Count of unresolved issues per packet (price disputes, delivery, contract gaps)**")
+                v = summary["kpi_summary"].get("avg_open_issues")
+                st.metric("Portfolio Average", str(v) if v is not None else "—")
+                if summary["supplier_breakdown"]:
+                    df_oi = pd.DataFrame(summary["supplier_breakdown"])[
+                        ["supplier_name", "category", "packets", "avg_open_issues"]
+                    ].rename(columns={
+                        "supplier_name": "Supplier", "category": "Category",
+                        "packets": "Packets", "avg_open_issues": "Avg Open Issues",
+                    })
+                    st.dataframe(df_oi, hide_index=True, use_container_width=True)
+
+            # ── §3 Price Delta ────────────────────────────────────────────────
+            with tab_pd:
+                st.markdown("**Latest email quote vs contract base price — positive = supplier quoting above contract**")
+                v = summary["kpi_summary"].get("avg_price_delta_pct")
+                st.metric("Portfolio Average Delta", f"{v:+.1f}%" if v is not None else "—")
+                if summary["supplier_breakdown"]:
+                    df_pd = pd.DataFrame(summary["supplier_breakdown"])[
+                        ["supplier_name", "category", "packets", "avg_price_delta_pct"]
+                    ].rename(columns={
+                        "supplier_name": "Supplier", "category": "Category",
+                        "packets": "Packets", "avg_price_delta_pct": "Avg Price Delta %",
+                    })
+                    st.dataframe(df_pd, hide_index=True, use_container_width=True)
+
+            # ── §4 Days to Renewal ────────────────────────────────────────────
+            with tab_dr:
+                st.markdown("**Days from packet generation date to contract renewal date**")
+                v = summary["kpi_summary"].get("avg_days_to_renewal")
+                st.metric("Portfolio Average", f"{int(v)}d" if v is not None else "—")
+                if summary["supplier_breakdown"]:
+                    df_dr = pd.DataFrame(summary["supplier_breakdown"])[
+                        ["supplier_name", "category", "packets", "avg_days_to_renewal"]
+                    ].rename(columns={
+                        "supplier_name": "Supplier", "category": "Category",
+                        "packets": "Packets", "avg_days_to_renewal": "Avg Days to Renewal",
+                    })
+                    st.dataframe(df_dr, hide_index=True, use_container_width=True)
 
             st.divider()
-            if summary["supplier_breakdown"]:
-                st.markdown("**Per-supplier breakdown**")
-                df_sup = pd.DataFrame(summary["supplier_breakdown"])
-                df_sup.columns = [
-                    "Supplier", "Category", "Packets", "Avg Gen (s)",
-                    "§1 Response (d)", "§2 Open Issues", "§3 Price Delta %", "§4 Renewal (d)",
-                ]
-                st.dataframe(df_sup, use_container_width=True, hide_index=True)
-
             if summary["recent_events"]:
                 st.markdown("**Last 10 generation events**")
                 df_recent = pd.DataFrame(summary["recent_events"])
