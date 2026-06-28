@@ -49,7 +49,7 @@ st.sidebar.markdown(
         🔒 Email content is processed in memory only and not retained beyond this session.
       </p>
       <p style="font-size:0.72rem;color:#94a3b8;line-height:1.5;margin:0;">
-        ⚠️ AI-generated content — please verify important facts independently.
+        ⚠️ Negotiation briefs and recommendations are AI-generated — please verify before acting on them.
       </p>
     </div>
     """,
