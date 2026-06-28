@@ -97,7 +97,8 @@ with st.sidebar:
 
 # ── Filter ────────────────────────────────────────────────────────────────────
 
-filtered = all_summaries
+_health_order = {"At risk": 0, "Stable": 1, "Healthy": 2}
+filtered = sorted(all_summaries, key=lambda x: _health_order.get(x["combined_health_label"], 3))
 if search:
     filtered = [s for s in filtered if s["supplier_name"] == search]
 if cat_filter != "All":

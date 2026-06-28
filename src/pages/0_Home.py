@@ -235,7 +235,8 @@ with right:
         "unknown": "Contract status unknown",
     }
 
-    for s in summaries:
+    _health_order = {"At risk": 0, "Stable": 1, "Healthy": 2}
+    for s in sorted(summaries, key=lambda x: _health_order.get(x["combined_health_label"], 3)):
         label   = s["combined_health_label"]
         color   = HEALTH_COLOR.get(label, "#94a3b8")
         days    = s["days_since_last_contact"]
