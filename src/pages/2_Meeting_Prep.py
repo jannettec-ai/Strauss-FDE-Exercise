@@ -265,29 +265,18 @@ def _apply_financial_context(packet: dict, mid: int) -> None:
         st.session_state.corrections[mid] = {}
 
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
+# ── Load meetings ─────────────────────────────────────────────────────────────
+
+meetings = get_upcoming_meetings()
 
 with st.sidebar:
     st.title("⚡ Meeting Prep")
     st.caption("Generate a one-page briefing")
-    st.divider()
-
-    meetings = get_upcoming_meetings()
-    if not meetings:
-        st.warning("No upcoming meetings in calendar.")
-        st.stop()
-
-    st.subheader("Upcoming meetings")
-    for m in meetings:
-        d = m["days_until"]
-        badge = "**Today**" if d == 0 else f"in {d}d"
-        label = f"**{m['date']}** · {m['supplier']}  \n_{m['category']} · {badge}_"
-        if st.button(label, key=f"mtg_{m['meeting_id']}", use_container_width=True):
-            st.session_state.selected_id = m["meeting_id"]
+    if st.session_state.selected_id:
+        st.divider()
+        if st.button("← All meetings", use_container_width=True):
+            st.session_state.selected_id = None
             st.rerun()
-
-    if not st.session_state.selected_id:
-        st.info("Select a meeting above.")
 
 # ── Main area ─────────────────────────────────────────────────────────────────
 
@@ -295,6 +284,43 @@ mid = st.session_state.selected_id
 packet = st.session_state.packets.get(mid) if mid else None
 
 _force_regen = st.session_state.pop(f"force_{mid}", False) if mid else False
+
+# ── Meeting selector (shown when no meeting selected) ─────────────────────────
+
+if not mid:
+    from ui_helpers import meeting_card, section_label as _sl
+    st.markdown(
+        '<div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;'
+        'letter-spacing:0.12em;color:#c8102e;margin-bottom:0.25rem;">Meeting Prep</div>',
+        unsafe_allow_html=True,
+    )
+    st.title("Upcoming Meetings")
+    st.caption("Select a meeting to generate your negotiation prep packet.")
+    st.divider()
+
+    if not meetings:
+        st.info("No upcoming meetings in calendar.")
+        st.stop()
+
+    for i in range(0, len(meetings), 2):
+        cols = st.columns(2, gap="large")
+        for col, m in zip(cols, meetings[i:i+2]):
+            with col:
+                st.markdown(
+                    meeting_card(
+                        m["date"], m["supplier"], m["days_until"],
+                        m.get("notes", ""), m.get("geography", ""), m["category"],
+                    ),
+                    unsafe_allow_html=True,
+                )
+                if st.button(
+                    "Generate prep packet →",
+                    key=f"sel_{m['meeting_id']}",
+                    use_container_width=True,
+                ):
+                    st.session_state.selected_id = m["meeting_id"]
+                    st.rerun()
+    st.stop()
 
 if packet is None and mid is not None:
     # Skip disk cache if user explicitly requested a refresh
