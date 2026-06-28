@@ -148,6 +148,7 @@ def get_summary() -> dict:
         total = conn.execute("SELECT COUNT(*) FROM generation_events").fetchone()[0]
         avg_dur = conn.execute("SELECT AVG(duration_seconds) FROM generation_events").fetchone()[0]
         unique = conn.execute("SELECT COUNT(DISTINCT supplier_name) FROM generation_events").fetchone()[0]
+        unique_meetings = conn.execute("SELECT COUNT(DISTINCT meeting_id) FROM generation_events WHERE meeting_id IS NOT NULL").fetchone()[0]
 
         kpi_row = conn.execute("""
             SELECT
@@ -204,6 +205,7 @@ def get_summary() -> dict:
         "total_packets": total,
         "avg_duration_sec": round(avg_dur, 1) if avg_dur is not None else None,
         "unique_suppliers": unique,
+        "unique_meetings": unique_meetings,
         "kpi_summary": dict(kpi_row) if kpi_row else {},
         "daily_breakdown": [dict(r) for r in daily_rows],
         "supplier_breakdown": [dict(r) for r in supplier_rows],

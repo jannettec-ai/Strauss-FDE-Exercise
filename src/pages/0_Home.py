@@ -297,15 +297,10 @@ with st.expander("🔒 FDE Access", expanded=False):
 
         CORR_LOG  = ROOT / "data" / "correction_log.csv"
         PREP_LOG  = ROOT / "data" / "prep_time_log.csv"
-        CACHE_DIR_FDE = ROOT / "data" / "packet_cache"
         TOTAL_MEETINGS = 14  # from data/calendar.csv
 
-        # ── Adoption Rate (computed from cache + calendar) ──────────────────
-        cached_meeting_ids = {
-            p.stem.split("_")[1]
-            for p in CACHE_DIR_FDE.glob("meeting_*.json")
-        }
-        adoption_count = len(cached_meeting_ids)
+        # ── Adoption Rate (from metrics.db — actual PM-initiated generations only) ──
+        adoption_count = summary.get("unique_meetings", 0)
         adoption_rate  = round(adoption_count / TOTAL_MEETINGS * 100) if TOTAL_MEETINGS else 0
 
         # ── Prep Time Saved (from log) ──────────────────────────────────────
