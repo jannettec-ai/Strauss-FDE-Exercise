@@ -69,7 +69,7 @@ def get_live_price(bm_df: pd.DataFrame, commodity_name: str) -> dict | None:
 def pct_change_color(pct: float | None) -> str:
     if pct is None:
         return "gray"
-    return "red" if pct > 0 else "green"
+    return "green" if pct > 0 else "red"
 
 
 def early_payment_apr(discount_pct: float, discount_days: int, net_days: int) -> float | None:
@@ -198,7 +198,7 @@ with tab_comm:
                     past_static = series.iloc[six_mo_idx]["price"]
                     if past_static:
                         chg = round((current_static - past_static) / past_static * 100, 1)
-                        chg_color = "#c8102e" if chg > 0 else "#16a34a"
+                        chg_color = "#16a34a" if chg > 0 else "#c8102e"
                         arrow = "▲" if chg > 0 else "▼"
                         st.markdown(
                             f"<div style='font-size:0.78rem;color:{chg_color};"
