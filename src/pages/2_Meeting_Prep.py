@@ -539,7 +539,7 @@ with f4:
         bm_val = f"{bm['current_price']} {bm.get('unit','')}"
         st.metric("Commodity Pricing Trend", bm_val,
                   delta=f"{arrow} {chg_str} (6 months)" if chg_str else None,
-                  delta_color="inverse",
+                  delta_color="normal",
                   help="Live commodity pricing trend and 6-month direction")
     else:
         st.metric("Commodity Pricing Trend", "—", help="No benchmark data for this category")
@@ -867,7 +867,7 @@ with right:
                 drift_pct = round((live_price - static_price) / static_price * 100, 1) if static_price else None
                 if drift_pct is not None and abs(drift_pct) >= 0.5:
                     arrow = "▲" if drift_pct > 0 else "▼"
-                    color = "#c8102e" if drift_pct > 0 else "#16a34a"
+                    color = "#16a34a" if drift_pct > 0 else "#c8102e"
                     st.markdown(
                         f"<span style='color:{color};font-size:0.82rem;font-weight:600'>"
                         f"{arrow} {abs(drift_pct)}% vs last benchmark snapshot</span>",
