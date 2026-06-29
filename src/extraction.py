@@ -60,15 +60,27 @@ def load_contracts(supplier_num: str) -> dict[str, str]:
 
 
 def load_price_data(category: str | None) -> str | None:
-    """Returns last 13 rows of the price CSV (header + 12 months), or None."""
+    """Returns last 13 rows of the price CSV (header + 12 months), or None.
+    Sugar prices are converted from raw ¢/lb to USD/MT for consistency with contracts."""
     if category is None:
         return None
     fp = PRICES_DIR / f"{category}_24mo.csv"
     if not fp.exists():
         return None
     lines = fp.read_text(encoding="utf-8").strip().splitlines()
-    # header + most recent 12 data rows
     recent = [lines[0]] + lines[-12:]
+    if category == "sugar":
+        # CSV is stored in ¢/lb (ICE SB=F raw); convert to USD/MT (× 22.0462)
+        converted = [recent[0] + "  [unit: USD/MT]"]
+        for line in recent[1:]:
+            parts = line.split(",")
+            if len(parts) >= 2:
+                try:
+                    parts[1] = f"{float(parts[1]) * 22.0462:.2f}"
+                except ValueError:
+                    pass
+            converted.append(",".join(parts))
+        return "\n".join(converted)
     return "\n".join(recent)
 
 

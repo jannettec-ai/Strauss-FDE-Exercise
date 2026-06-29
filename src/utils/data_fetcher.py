@@ -125,7 +125,7 @@ _COMMODITY_TICKERS = {
     },
     "SB=F": {
         "commodity": "Sugar (No. 11)",
-        "unit": "¢/lb",          # ICE No.11 is quoted in US cents per pound
+        "unit": "USD/MT",         # ICE No.11 raw quote is ¢/lb; converted to USD/MT on fetch
         "source": "Yahoo Finance - ICE Futures",
     },
     "DC=F": {
@@ -156,15 +156,18 @@ def _fetch_commodity_benchmarks(fx_df: pd.DataFrame) -> pd.DataFrame:
                 close = close.dropna()
                 if close.empty:
                     continue
-                price_raw = round(float(close.iloc[-1]), 4)
-                # Sugar is in ¢/lb; divide by 100 to get USD before ILS conversion
-                usd_for_conversion = price_raw / 100 if ticker == "SB=F" else price_raw
-                price_ils = round(usd_for_conversion * usdils, 4) if usdils else None
+                price_raw = float(close.iloc[-1])
+                # SB=F is quoted in ¢/lb; convert to USD/MT (1 MT = 2204.62 lbs)
+                if ticker == "SB=F":
+                    price_usd = round(price_raw * 22.0462, 2)
+                else:
+                    price_usd = round(price_raw, 4)
+                price_ils = round(price_usd * usdils, 4) if usdils else None
                 rows.append({
                     "commodity": meta["commodity"],
                     "ticker": ticker,
                     "unit": meta["unit"],
-                    "price_usd": price_raw,
+                    "price_usd": price_usd,
                     "price_ils": price_ils,
                     "as_of_date": close.index[-1].date().isoformat(),
                     "source": meta["source"],

@@ -117,9 +117,10 @@ with tab_comm:
     st.markdown(section_label("24-Month Trend + Live Spot Price"), unsafe_allow_html=True)
     st.caption("Historical weekly close from static CSV · Live spot from Yahoo Finance (ICE/CME Futures)")
 
+    # SB=F raw quote is ¢/lb; series is converted to USD/MT on load below
     COMMODITIES = [
         ("cocoa",  "Cocoa",               "CC=F", "USD/MT",  "ICE"),
-        ("sugar",  "Sugar (No. 11)",      "SB=F", "¢/lb",    "ICE"),
+        ("sugar",  "Sugar (No. 11)",      "SB=F", "USD/MT",  "ICE"),
         ("dairy",  "Dairy (Class III)",   "DC=F", "USD/cwt", "CME"),
     ]
 
@@ -127,6 +128,10 @@ with tab_comm:
         st.markdown(f"**{display_name}** · {ticker} · {unit} · {exchange}")
 
         series = load_price_series(csv_key)
+        # SB=F CSV is stored in ¢/lb; convert to USD/MT for display
+        if csv_key == "sugar" and series is not None and not series.empty:
+            series = series.copy()
+            series["price"] = series["price"] * 22.0462
         live = get_live_price(bm_df, display_name if csv_key != "dairy" else "Dairy (Class III Milk)")
 
         col_chart, col_stat = st.columns([3, 1], gap="large")

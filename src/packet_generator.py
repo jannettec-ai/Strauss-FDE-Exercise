@@ -37,7 +37,7 @@ NAME_TO_NUM: dict[str, str] = {name: num for num, (name, _) in SUPPLIERS.items()
 
 # Units match the Yahoo Finance tickers used in pull_prices.py:
 #   CC=F  → USD per metric ton
-#   SB=F  → US cents per pound
+#   SB=F  → raw quote is ¢/lb; converted to USD/MT (× 22.0462) for consistency with contracts
 #   DC=F  → USD per hundredweight (cwt)
 BENCHMARK_META = {
     "cocoa": {
@@ -46,8 +46,8 @@ BENCHMARK_META = {
         "source": "ICE Cocoa Futures (CC=F) via Yahoo Finance",
     },
     "sugar": {
-        "unit": "¢/lb",
-        "unit_label": "US cents per pound (ICE No.11)",
+        "unit": "USD/MT",
+        "unit_label": "USD per metric ton (converted from ICE No.11 ¢/lb)",
         "source": "ICE Sugar No.11 Futures (SB=F) via Yahoo Finance",
     },
     "dairy": {
@@ -159,13 +159,16 @@ def load_benchmark(category: str) -> Optional[dict]:
     if not fp.exists():
         return None
 
+    # SB=F CSV is stored in ¢/lb; convert to USD/MT for contract comparability
+    _sugar_factor = 22.0462 if category == "sugar" else 1.0
+
     rows = []
     with open(fp, encoding="utf-8", newline="") as f:
         for row in csv.DictReader(f):
             try:
                 rows.append({
                     "date": datetime.strptime(row["date"], "%Y-%m-%d").date(),
-                    "price": float(row["price"]),
+                    "price": float(row["price"]) * _sugar_factor,
                 })
             except (ValueError, KeyError):
                 continue
